@@ -1,0 +1,20 @@
+<phpunit colors="true" verbose="true" bootstrap="tests/bootstrap.php">
+    <php>
+        <ini name="display_errors" value="on"/>
+    </php>
+    <logging>
+        <log type="coverage-html" target="build/coverage/report"/>
+        <log type="coverage-xml" target="build/coverage/xml"/>
+        <log type="coverage-clover" target="build/coverage/coverage.clover"/>
+    </logging>
+    <testsuites>
+        <testsuite name="Unit Test">
+            <directory>./tests</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./lib</directory>
+        </whitelist>
+    </filter>
+</phpunit>
