@@ -1,6 +1,11 @@
 <?php
 namespace {
     if (!function_exists('\mysql_connect')) {
+        define('MYSQL_CLIENT_COMPRESS', MYSQLI_CLIENT_COMPRESS);
+        define('MYSQL_CLIENT_IGNORE_SPACE', MYSQLI_CLIENT_IGNORE_SPACE);
+        define('MYSQL_CLIENT_INTERACTIVE', MYSQLI_CLIENT_INTERACTIVE);
+        define('MYSQL_CLIENT_SSL', MYSQLI_CLIENT_SSL);
+
         function mysql_connect(
             $hostname = null,
             $username = null,
@@ -12,21 +17,46 @@ namespace {
                 trigger_error('Argument $new is no longer supported in PHP > 7', E_USER_WARNING);
             }
 
+            $hash = sha1($hostname . $username . $flags);
+            if ($hostname{1} != ':' && isset(\Dshafik\MySQL::$connections[$hash])) {
+                \Dshafik\MySQL::$last_connection = \Dshafik\MySQL::$connections[$hash]['conn'];
+                \Dshafik\MySQL::$connections[$hash]['refcount'] += 1;
+                return \Dshafik\MySQL::$connections[$hash]['conn'];
+            }
+
             if ($flags === 0) {
-                $conn = \Dshafik\MySQL::$last_connection = mysqli_connect($hostname, $username, $password);
+                \Dshafik\MySQL::$last_connection = $conn = mysqli_connect($hostname, $username, $password);
+                $conn->hash = $hash;
+                \Dshafik\MySQL::$connections[$hash] = ['refcount' => 1, 'conn' => $conn];
+
                 return $conn;
             }
 
             try {
-                $conn = \Dshafik\MySQL::$last_connection = mysqli_init();
+                \Dshafik\MySQL::$last_connection = $conn = mysqli_init();
 
-                mysqli_options($conn, $flags);
+                mysqli_real_connect(
+                    $conn,
+                    $hostname,
+                    $username,
+                    $password,
+                    '',
+                    null,
+                    '',
+                    $flags
+                );
 
-                mysqli_real_connect($conn, $hostname, $username, $password);
+                if ($conn === false) {
+                    return false;
+                }
+
+                $conn->hash = $hash;
+                \Dshafik\MySQL::$connections[$hash] = ['refcount' => 1, 'conn' => $conn];
 
                 return $conn;
             } catch (\Throwable $e) {
-                var_dump($e);
+                trigger_error($e->getMessage(), E_USER_WARNING);
+                return false;
             }
         }
 
@@ -49,10 +79,20 @@ namespace {
                 return false;
             }
 
-            $return = mysqli_close($link);
+            if (isset(\Dshafik\MySQL::$connections[$link->hash])) {
+                \Dshafik\MySQL::$connections[$link->hash]['refcount'] -= 1;
+            }
+
+            $return = true;
+            if (\Dshafik\MySQL::$connections[$link->hash]['refcount'] == 0) {
+                $return = mysqli_close($link);
+                unset(\Dshafik\MySQL::$connections[$link->hash]);
+            }
+
             if ($isDefault) {
                 Dshafik\MySQL::$last_connection = null;
             }
+
             return $return;
         }
 
@@ -62,7 +102,7 @@ namespace {
 
             return mysqli_query(
                 $link,
-                "USE " . mysqli_real_escape_string($link)
+                "USE " . mysqli_real_escape_string($link, $databaseName)
             ) !== false;
         }
 
@@ -74,8 +114,11 @@ namespace {
         function mysql_unbuffered_query($query, \mysqli $link = null)
         {
             $link = \Dshafik\MySQL::getConnection($link);
-            mysqli_real_query($link, $query);
-            return $link;
+            if (mysqli_real_query($link, $query)) {
+                return mysqli_use_result($link);
+            }
+
+            return false;
         }
 
         function mysql_db_query($databaseName, $query, \mysqli $link = null)
@@ -149,7 +192,11 @@ namespace {
 
         function mysql_num_rows(\mysqli_result $result)
         {
-            return mysqli_num_rows($result);
+            $previous = error_reporting(0);
+            $rows = mysqli_num_rows($result);
+            error_reporting($previous);
+
+            return $rows;
         }
 
         function mysql_num_fields(\mysqli_result $result)
@@ -172,8 +219,12 @@ namespace {
             return mysqli_fetch_assoc($result);
         }
 
-        function mysql_fetch_object(\mysqli_result $result, $class, array $params = []) /* : object|null */
+        function mysql_fetch_object(\mysqli_result $result, $class = null, array $params = []) /* : object|null */
         {
+            if ($class == null) {
+                return mysqli_fetch_object($result);
+            }
+
             return mysqli_fetch_object($result, $class, $params);
         }
 
@@ -374,6 +425,7 @@ namespace {
 namespace Dshafik {
     class MySQL {
         static public $last_connection = null;
+        static public $connections = [];
 
         static public function getConnection($link = null, $func = null)
         {
