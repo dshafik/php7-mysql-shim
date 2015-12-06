@@ -103,7 +103,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                 seven varchar(255),
                 eight varchar(255),
                 nine ENUM('one', 'two', '\'three'),
-                ten SET('one', 'two', '\'three'),
+                ten SET('one', 'two', '\'\'three'),
                 eleven MEDIUMTEXT,
                 INDEX one_idx (one),
                 UNIQUE INDEX two_unq (two),
@@ -332,6 +332,12 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("string", \mysql_field_type($result, 9));
         $this->assertEquals(6, \mysql_field_len($result, 9));
         $this->assertEquals("enum", \mysql_field_flags($result, 9));
+
+        $this->assertEquals("testing", \mysql_field_table($result, 10));
+        $this->assertEquals("ten", \mysql_field_name($result, 10));
+        $this->assertEquals("string", \mysql_field_type($result, 10));
+        $this->assertEquals(15, \mysql_field_len($result, 10));
+        $this->assertEquals("set", \mysql_field_flags($result, 10));
 
         $this->assertEquals("testing", \mysql_field_table($result, 11));
         $this->assertEquals("eleven", \mysql_field_name($result, 11));
