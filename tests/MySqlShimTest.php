@@ -25,11 +25,11 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessageRegExp /^mysql(i?)_connect\(\): (\(HY000\/1045\): )?Access denied for user ''@'(.*?)' \(using password: NO\)$/
+     * @expectedExceptionMessageRegExp /^mysql(i?)_connect\(\): (\(HY000\/1045\): )?Access denied for user 'baduser'@'(.*?)' \(using password: YES\)$/
      */
     public function test_mysql_connect_fail()
     {
-        $mysql = \mysql_connect(static::$host);
+        $mysql = \mysql_connect(static::$host, "baduser", "badpass");
     }
 
     /**
@@ -50,11 +50,11 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessageRegExp /^mysql((i_real)?)_connect\(\): (\(HY000\/1045\): )?Access denied for user ''@'(.*?)' \(using password: NO\)$/
+     * @expectedExceptionMessageRegExp /^mysql((i_real)?)_connect\(\): (\(HY000\/1045\): )?Access denied for user 'baduser'@'(.*?)' \(using password: YES\)$/
      */
     public function test_mysql_connect_options_fail()
     {
-        \mysql_connect(static::$host, null, null, false, MYSQL_CLIENT_COMPRESS);
+        \mysql_connect(static::$host, "baduser", "badpass", false, MYSQL_CLIENT_COMPRESS);
     }
 
     public function test_mysql_connect_multi()
@@ -87,7 +87,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     public function test_mysql_query_ddl()
     {
         $conn = \mysql_connect(static::$host, 'root');
-        $result = \mysql_query("CREATE DATABASE shim_test;");
+        $result = \mysql_query("CREATE DATABASE shim_test CHARACTER SET latin1;");
         $this->assertTrue($result);
         $result = \mysql_select_db('shim_test');
         $this->assertTrue($result);
@@ -112,7 +112,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                 INDEX seven_eight_idx (seven, eight),
                 UNIQUE INDEX seven_eight_unq (seven, eight),
                 PRIMARY KEY (id)
-            );"
+            ) CHARACTER SET latin1;"
         );
         $this->assertTrue($result, \mysql_error());
     }
@@ -438,77 +438,88 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        fwrite(STDERR, "=> Finding binaries\n");
-        static::$bin['dm'] = $dm = exec('/usr/bin/env which docker-machine');
-        static::$bin['docker'] = $docker = exec('/usr/bin/env which docker');
-        if (empty($dm) && empty($docker)) {
-            static::markTestSkipped('Docker is required to run these tests');
-        }
+        error_reporting(E_ALL & ~E_DEPRECATED);
+        if (getenv('TRAVIS') === false) {
+            fwrite(STDERR, "=> Finding binaries\n");
+            static::$bin['dm'] = $dm = exec('/usr/bin/env which docker-machine');
+            static::$bin['docker'] = $docker = exec('/usr/bin/env which docker');
+            if (empty($dm) && empty($docker)) {
+                static::markTestSkipped('Docker is required to run these tests');
+            }
 
-        if (!empty($dm)) {
-            fwrite(STDERR, "=> Starting Docker Machine\n");
-            exec($dm . ' create -d virtualbox mysql-shim');
-            exec($dm . ' start mysql-shim');
+            if (!empty($dm)) {
+                fwrite(STDERR, "=> Starting Docker Machine\n");
+                exec($dm . ' create -d virtualbox mysql-shim');
+                exec($dm . ' start mysql-shim');
 
-            $env = '';
-            exec($dm . ' env mysql-shim', $env);
-            foreach ($env as $line) {
-                if ($line{0} !== '#') {
-                    putenv(str_replace(["export ", '"'], "", $line));
+                $env = '';
+                exec($dm . ' env mysql-shim', $env);
+                foreach ($env as $line) {
+                    if ($line{0} !== '#') {
+                        putenv(str_replace(["export ", '"'], "", $line));
+                    }
                 }
             }
-        }
 
-        fwrite(STDERR, "=> Running Docker Container: ");
-        static::$container = exec($docker . ' run -e MYSQL_ALLOW_EMPTY_PASSWORD=1 -P -d  mysql/mysql-server:5.7');
+            fwrite(STDERR, "=> Running Docker Container: ");
+            static::$container = exec($docker . ' run -e MYSQL_ALLOW_EMPTY_PASSWORD=1 -P -d  mysql/mysql-server:5.7');
 
-        if (empty(static::$container)) {
-            static::markTestSkipped("Unable to start docker container");
-        }
+            if (empty(static::$container)) {
+                static::markTestSkipped("Unable to start docker container");
+            }
 
-        fwrite(STDERR, static::$container . "\n");
+            fwrite(STDERR, static::$container . "\n");
 
-        fwrite(STDERR, "=> Finding MySQL Host: ");
-        static::$host = exec($docker . ' port ' . self::$container . ' 3306');
-        fwrite(STDERR, static::$host . "\n");
-
-        if (!empty($dm)) {
-            fwrite(STDERR, "=> Using Docker Machine IP: ");
-            $info = explode(':', static::$host);
-            $port = array_pop($info);
-            static::$host = exec($dm . ' ip mysql-shim') . ':' . $port;
+            fwrite(STDERR, "=> Finding MySQL Host: ");
+            static::$host = exec($docker . ' port ' . self::$container . ' 3306');
             fwrite(STDERR, static::$host . "\n");
+
+            if (!empty($dm)) {
+                fwrite(STDERR, "=> Using Docker Machine IP: ");
+                $info = explode(':', static::$host);
+                $port = array_pop($info);
+                static::$host = exec($dm . ' ip mysql-shim') . ':' . $port;
+                fwrite(STDERR, static::$host . "\n");
+            }
+
+            fwrite(STDERR, "=> Waiting on mysqld to start:");
+            $out = '';
+            while (trim($out) != 'mysqld') {
+                $out = exec(static::$bin['docker'] . ' exec ' . static::$container . ' ps ax | awk \'/mysqld/ {print $NF}\'');
+            }
+            fwrite(STDERR, " started\n");
+            sleep(3);
+
+            fwrite(STDERR, "=> Docker Container Running\n\n");
+
+            return;
         }
 
-        fwrite(STDERR, "=> Waiting on mysqld to start:");
-        $out = '';
-        while (trim($out) != 'mysqld') {
-            $out = exec(static::$bin['docker'] . ' exec ' . static::$container . ' ps ax | awk \'/mysqld/ {print $NF}\'');
-        }
-        fwrite(STDERR, " started\n");
-
-        fwrite(STDERR, "=> Docker Container Running\n\n");
-
-        error_reporting(E_ALL & ~E_DEPRECATED);
-
-        sleep(3);
+        static::$host = 'localhost';
     }
 
     public static function tearDownAfterClass()
     {
-        fwrite(STDERR, "\n\nStopping Docker Container: ");
-        $output = exec(static::$bin['docker'] . ' stop ' .static::$container);
-        if (trim($output) !== static::$container) {
-            fwrite(STDERR, " Failed to stop container!\n");
+        if (getenv('TRAVIS') === false) {
+            fwrite(STDERR, "\n\nStopping Docker Container: ");
+            $output = exec(static::$bin['docker'] . ' stop ' . static::$container);
+            if (trim($output) !== static::$container) {
+                fwrite(STDERR, " Failed to stop container!\n");
+                return;
+            }
+
+            $output = exec(static::$bin['docker'] . ' rm ' . static::$container);
+            if (trim($output) !== static::$container) {
+                fwrite(STDERR, " Failed to remove container!\n");
+                return;
+            }
+            fwrite(STDERR, "Done\n");
+
             return;
         }
 
-        $output = exec(static::$bin['docker'] . ' rm ' .static::$container);
-        if (trim($output) !== static::$container) {
-            fwrite(STDERR, " Failed to remove container!\n");
-            return;
-        }
-        fwrite(STDERR, "Done\n");
+        \mysql_connect(static::$host, "root");
+        \mysql_query("DROP DATABASE shim_test");
     }
 
     public function mysql_fetch_DataProvider()
@@ -577,6 +588,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         $mysql = \mysql_connect(static::$host, 'root');
         $this->assertConnection($mysql);
+
+        \mysql_query("SET NAMES latin1");
 
         if ($db !== null) {
             $this->assertTrue(\mysql_select_db($db));
