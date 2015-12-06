@@ -419,64 +419,49 @@ namespace {
 
         /* Aliases */
 
-        function mysql_fieldname($result)
+        function mysql_fieldname(... $args)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
-                return false;
-            }
-            return mysql_field_name($result);
+            return mysql_field_name(... $args);
         }
 
-        function mysql_fieldtable($result)
+        function mysql_fieldtable(... $args)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
-                return false;
-            }
-            return mysql_field_table($result);
+            return mysql_field_table(... $args);
         }
 
-        function mysql_fieldlen($result)
+        function mysql_fieldlen(... $args)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
-                return false;
-            }
-            return mysql_field_len($result);
+            return mysql_field_len(... $args);
         }
 
-        function mysql_fieldtype($result)
+        function mysql_fieldtype(... $args)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
-                return false;
-            }
-            return mysql_field_type($result);
+            return mysql_field_type(... $args);
         }
 
-        function mysql_fieldflags($result)
+        function mysql_fieldflags(... $args)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
-                return false;
-            }
-            return mysql_field_flags($result);
+            return mysql_field_flags(... $args);
         }
 
-        function mysql_selectdb($databaseName, \mysqli $link = null)
+        function mysql_selectdb(... $args)
         {
-            return mysql_select_db($databaseName, $link);
+            return mysql_select_db(... $args);
         }
 
-        function mysql_freeresult($result)
+        function mysql_freeresult(... $args)
         {
-            return mysql_free_result($result);
+            return mysql_free_result(... $args);
         }
 
-        function mysql_numfields($result)
+        function mysql_numfields(... $args)
         {
-            return mysql_num_fields($result);
+            return mysql_num_fields(... $args);
         }
 
-        function mysql_numrows($result)
+        function mysql_numrows(... $args)
         {
-            return mysql_num_rows($result);
+            return mysql_num_rows(... $args);
         }
 
         function mysql_listdbs(... $args)
@@ -494,14 +479,14 @@ namespace {
             return mysql_list_fields(... $args);
         }
 
-        function mysql_dbname($result)
+        function mysql_dbname(... $args)
         {
-            return mysql_db_name($result);
+            return mysql_db_name(... $args);
         }
 
-        function mysql_tablename($result)
+        function mysql_tablename(... $args)
         {
-            return mysql_table_name($result);
+            return mysql_table_name(... $args);
         }
     }
 }
