@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/dshafik/php7-mysql-shim.svg?branch=master)](https://travis-ci.org/dshafik/php7-mysql-shim)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/?branch=master)
 # PHP 7 Shim for ext/mysql
 
 This library attempts to create a drop-in replacement for ext/mysql on PHP 7 using mysqli.
@@ -21,7 +24,7 @@ Once the file is included, it will create `mysql_*` function if they don't alrea
 
 ## Caveats
 
-The only things that should break are calls to `is_resource()` on MySQL connections and results, as these
-are now their `mysqli` equivalents.
-
-Additionally, some errors are now from `ext/mysqli`, and others are `E_USER_WARNING` instead of `E_WARNING`.
+- Calls to `is_resource()` and `get_resource_type()` on MySQL connections and results will fail as these are now their `mysqli` equivalents.
+-Some errors are now from `ext/mysqli`, and others are `E_USER_WARNING` instead of `E_WARNING`.
+- Column lengths reported by `mysql_field_len()` assume latin1
+- You must prefix all calls to `mysql_*` with a `\` (e.g. `\mysql_connect()`;

@@ -1,5 +1,6 @@
 <?php
 namespace {
+
     if (!function_exists('\mysql_connect')) {
         define('MYSQL_CLIENT_COMPRESS', MYSQLI_CLIENT_COMPRESS);
         define('MYSQL_CLIENT_IGNORE_SPACE', MYSQLI_CLIENT_IGNORE_SPACE);
@@ -11,8 +12,8 @@ namespace {
             $username = null,
             $password = null,
             $new = false,
-            $flags = 0)
-        {
+            $flags = 0
+        ) {
             if ($new !== false) {
                 trigger_error('Argument $new is no longer supported in PHP > 7', E_USER_WARNING);
             }
@@ -70,8 +71,8 @@ namespace {
             $hostname = null,
             $username = null,
             $password = null,
-            $flags = 0)
-        {
+            $flags = 0
+        ) {
             $hostname = 'p:' . $hostname;
             return mysql_connect($hostname, $username, $password, false, $flags);
         }
@@ -305,7 +306,7 @@ namespace {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 return false;
             }
-            return \Dshafik\MySQL::mysql_field_info($result, $field, 'name');
+            return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'name');
         }
 
         function mysql_field_table($result, $field)
@@ -313,7 +314,7 @@ namespace {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 return false;
             }
-            return \Dshafik\MySQL::mysql_field_info($result, $field, 'table');
+            return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'table');
         }
 
         function mysql_field_len($result, $field)
@@ -321,7 +322,7 @@ namespace {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 return false;
             }
-            return \Dshafik\MySQL::mysql_field_info($result, $field, 'length');
+            return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'length');
         }
 
         function mysql_field_type($result, $field)
@@ -329,7 +330,7 @@ namespace {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 return false;
             }
-            return \Dshafik\MySQL::mysql_field_info($result, $field, 'type');
+            return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'type');
         }
 
         function mysql_field_flags($result, $field)
@@ -337,7 +338,7 @@ namespace {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 return false;
             }
-            return \Dshafik\MySQL::mysql_field_info($result, $field, 'flags');
+            return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'flags');
         }
 
         function mysql_escape_string($unescapedString)
@@ -506,11 +507,13 @@ namespace {
 }
 
 namespace Dshafik {
-    class MySQL {
-        static public $last_connection = null;
-        static public $connections = [];
 
-        static public function getConnection($link = null, $func = null)
+    class MySQL
+    {
+        public static $last_connection = null;
+        public static $connections = [];
+
+        public static function getConnection($link = null, $func = null)
         {
             if ($link !== null) {
                 return $link;
@@ -528,7 +531,7 @@ namespace Dshafik {
             return static::$last_connection;
         }
 
-        static public function mysql_field_info(\mysqli_result $result, $field, $what)
+        public static function mysqlFieldInfo(\mysqli_result $result, $field, $what)
         {
             if (!\mysqli_data_seek($result, $field)) {
                 trigger_error(
@@ -560,7 +563,7 @@ namespace Dshafik {
                         $matches[$what] = null;
                     }
                     if ($what == 'length') {
-                      return static::getFieldLength($matches[$what], $field['Type']);
+                        return static::getFieldLength($matches[$what], $field['Type']);
                     }
                     return static::getFieldType($matches[$what]);
                 case "flags":
@@ -604,7 +607,7 @@ namespace Dshafik {
             return false;
         }
 
-        static function checkValidResult($result, $function)
+        public static function checkValidResult($result, $function)
         {
             if (!($result instanceof \mysqli_result)) {
                 trigger_error(
