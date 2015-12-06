@@ -27,4 +27,3 @@ Once the file is included, it will create `mysql_*` function if they don't alrea
 - Calls to `is_resource()` and `get_resource_type()` on MySQL connections and results will fail as these are now their `mysqli` equivalents.
 -Some errors are now from `ext/mysqli`, and others are `E_USER_WARNING` instead of `E_WARNING`.
 - Column lengths reported by `mysql_field_len()` assume latin1
-- You must prefix all calls to `mysql_*` with a `\` (e.g. `\mysql_connect()`;
