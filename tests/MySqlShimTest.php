@@ -96,6 +96,21 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                 id int AUTO_INCREMENT,
                 one varchar(255),
                 two varchar(255),
+                three varchar(255),
+                four varchar(255),
+                five varchar(255),
+                six varchar(255),
+                seven varchar(255),
+                eight varchar(255),
+                nine ENUM('one', 'two', '\'three'),
+                ten SET('one', 'two', '\'three'),
+                eleven MEDIUMTEXT,
+                INDEX one_idx (one),
+                UNIQUE INDEX two_unq (two),
+                INDEX three_four_idx (three, four),
+                UNIQUE INDEX four_five_unq (four, five),
+                INDEX seven_eight_idx (seven, eight),
+                UNIQUE INDEX seven_eight_unq (seven, eight),
                 PRIMARY KEY (id)
             );"
         );
@@ -104,15 +119,23 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_query_insert()
     {
-        $this->getConnection("mysql_shim");
-        $result = \mysql_query("INSERT INTO testing (one, two) VALUES ('1', '1'), ('2', '2'), ('3', '3'), ('4', '4')");
+        $this->getConnection("shim_test");
+        $result = \mysql_query(
+            "INSERT INTO
+                testing (one, two, three, four, five, six, seven, eight)
+             VALUES
+                ('1', '1', '1', '1', '1', '1', '1', '1'),
+                ('2', '2', '2', '2', '2', '2', '2', '2'),
+                ('3', '3', '3', '3', '3', '3', '3', '3'),
+                ('4', '4', '4', '4', '4', '4', '4', '4')"
+        );
 
         $this->assertTrue($result, \mysql_error());
     }
 
     public function test_mysql_query()
     {
-        $this->getConnection("mysql_shim");
+        $this->getConnection("shim_test");
         $result = \mysql_query("SELECT VERSION()");
 
         $this->assertResult($result);
@@ -120,7 +143,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_query_nodata()
     {
-        $this->getConnection("mysql_shim");
+        $this->getConnection("shim_test");
         $result = \mysql_query("SET @test = 'foo'");
 
         $this->assertTrue($result);
@@ -128,7 +151,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_query_fail()
     {
-        $this->getConnection("mysql_shim");
+        $this->getConnection("shim_test");
         $result = \mysql_query("SELECT VERSION(");
 
         $this->assertFalse($result);
@@ -136,7 +159,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_unbuffered_query()
     {
-        $this->getConnection("mysql_shim");
+        $this->getConnection("shim_test");
 
         $result = \mysql_unbuffered_query("SELECT one, two FROM testing LIMIT 4");
         $this->assertResult($result);
@@ -160,16 +183,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_unbuffered_query_num_rows()
     {
-        $this->getConnection("mysql_shim");
-
-        \mysql_query(
-            "CREATE TABLE largetest (
-                id int AUTO_INCREMENT,
-                one varchar(255),
-                two varchar(255),
-                PRIMARY KEY (id)
-          );"
-        );
+        $this->getConnection("shim_test");
 
         $result = \mysql_unbuffered_query("SELECT one, two FROM testing");
         $this->assertResult($result);
@@ -183,16 +197,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             $this->markTestSkipped("PHP < 7.0.0 is required");
         }
 
-        $conn = $this->getConnection("mysql_shim");
-
-        \mysql_query(
-            "CREATE TABLE largetest (
-                id int AUTO_INCREMENT,
-                one varchar(255),
-                two varchar(255),
-                PRIMARY KEY (id)
-          );"
-        );
+        $conn = $this->getConnection("shim_test");
 
         $result = \mysql_unbuffered_query("SELECT one, two FROM testing");
         $this->assertResult($result);
@@ -211,20 +216,162 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
      */
     public function test_mysql_unbuffered_query_close()
     {
-        $conn = $this->getConnection("mysql_shim");
-
-        \mysql_query(
-            "CREATE TABLE largetest (
-                id int AUTO_INCREMENT,
-                one varchar(255),
-                two varchar(255),
-                PRIMARY KEY (id)
-          );"
-        );
-
+        $conn = $this->getConnection("shim_test");
         $result = \mysql_unbuffered_query("SELECT one, two FROM testing");
         $this->assertResult($result);
         \mysql_close($conn);
+    }
+
+    public function test_mysql_db_query()
+    {
+        $this->getConnection();
+        $result = \mysql_db_query("shim_test", "SELECT DATABASE()");
+        $this->assertResult($result);
+        $this->assertEquals("shim_test", \mysql_fetch_row($result)[0]);
+        $result = \mysql_db_query("mysql", "SELECT DATABASE()");
+        $this->assertResult($result);
+        $this->assertEquals("mysql", \mysql_fetch_row($result)[0]);
+    }
+
+    public function test_mysql_db_query_fail()
+    {
+        $this->getConnection();
+        $result = \mysql_db_query("nonexistent", "SELECT DATABASE()");
+        $this->assertFalse($result);
+    }
+
+    public function test_mysql_list_dbs()
+    {
+        $this->getConnection();
+        $result = \mysql_list_dbs();
+        $this->assertResult($result);
+        while ($row = mysql_fetch_assoc($result)) {
+            $this->assertArrayHasKey("Database", $row);
+        }
+    }
+
+    public function test_mysql_list_tables()
+    {
+        $this->getConnection();
+        $result = \mysql_list_tables("mysql");
+        $this->assertResult($result);
+        while ($row = mysql_fetch_assoc($result)) {
+            $this->assertArrayHasKey("Tables_in_mysql", $row);
+        }
+    }
+
+    public function test_mysql_list_tables_fail()
+    {
+        $this->getConnection();
+        $result = \mysql_list_tables("nonexistent");
+        $this->assertFalse($result);
+    }
+
+    public function test_mysql_list_fields()
+    {
+        $this->getConnection();
+        $result = \mysql_list_fields("shim_test", "testing");
+        $this->assertResult($result);
+
+        $this->assertEquals("testing", \mysql_field_table($result, 0));
+        $this->assertEquals("id", \mysql_field_name($result, 0));
+        $this->assertEquals("int", \mysql_field_type($result, 0));
+        $this->assertEquals(11, \mysql_field_len($result, 0));
+        $this->assertEquals("not_null primary_key auto_increment", \mysql_field_flags($result, 0));
+
+        $this->assertEquals("testing", \mysql_field_table($result, 1));
+        $this->assertEquals("one", \mysql_field_name($result, 1));
+        $this->assertEquals("string", \mysql_field_type($result, 1));
+        $this->assertEquals(255, \mysql_field_len($result, 1));
+        $this->assertEquals("multiple_key", \mysql_field_flags($result, 1));
+
+        $this->assertEquals("testing", \mysql_field_table($result, 2));
+        $this->assertEquals("two", \mysql_field_name($result, 2));
+        $this->assertEquals("string", \mysql_field_type($result, 2));
+        $this->assertEquals(255, \mysql_field_len($result, 2));
+        $this->assertEquals("unique_key", \mysql_field_flags($result, 2));
+
+        $this->assertEquals("testing", \mysql_field_table($result, 3));
+        $this->assertEquals("three", \mysql_field_name($result, 3));
+        $this->assertEquals("string", \mysql_field_type($result, 3));
+        $this->assertEquals(255, \mysql_field_len($result, 3));
+        $this->assertEquals("multiple_key", \mysql_field_flags($result, 3));
+
+        $this->assertEquals("testing", \mysql_field_table($result, 4));
+        $this->assertEquals("four", \mysql_field_name($result, 4));
+        $this->assertEquals("string", \mysql_field_type($result, 4));
+        $this->assertEquals(255, \mysql_field_len($result, 4));
+        $this->assertEquals("multiple_key", \mysql_field_flags($result, 4));
+
+        $this->assertEquals("testing", \mysql_field_table($result, 5));
+        $this->assertEquals("five", \mysql_field_name($result, 5));
+        $this->assertEquals("string", \mysql_field_type($result, 5));
+        $this->assertEquals(255, \mysql_field_len($result, 5));
+        $this->assertEmpty(\mysql_field_flags($result, 5));
+
+        $this->assertEquals("testing", \mysql_field_table($result, 6));
+        $this->assertEquals("six", \mysql_field_name($result, 6));
+        $this->assertEquals("string", \mysql_field_type($result, 6));
+        $this->assertEquals(255, \mysql_field_len($result, 6));
+        $this->assertEmpty(\mysql_field_flags($result, 6));
+
+        $this->assertEquals("testing", \mysql_field_table($result, 7));
+        $this->assertEquals("seven", \mysql_field_name($result, 7));
+        $this->assertEquals("string", \mysql_field_type($result, 7));
+        $this->assertEquals(255, \mysql_field_len($result, 7));
+        $this->assertEquals("multiple_key", \mysql_field_flags($result, 7));
+
+        $this->assertEquals("testing", \mysql_field_table($result, 8));
+        $this->assertEquals("eight", \mysql_field_name($result, 8));
+        $this->assertEquals("string", \mysql_field_type($result, 8));
+        $this->assertEquals(255, \mysql_field_len($result, 8));
+        $this->assertEmpty(\mysql_field_flags($result, 8));
+
+        $this->assertEquals("testing", \mysql_field_table($result, 9));
+        $this->assertEquals("nine", \mysql_field_name($result, 9));
+        $this->assertEquals("string", \mysql_field_type($result, 9));
+        $this->assertEquals(6, \mysql_field_len($result, 9));
+        $this->assertEquals("enum", \mysql_field_flags($result, 9));
+
+        $this->assertEquals("testing", \mysql_field_table($result, 11));
+        $this->assertEquals("eleven", \mysql_field_name($result, 11));
+        $this->assertEquals("blob", \mysql_field_type($result, 11));
+        $this->assertEquals(16777215, \mysql_field_len($result, 11));
+        $this->assertEquals("blob", \mysql_field_flags($result, 11));
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Warning
+     * @expectedExceptionMessageRegExp /^mysql_field_name\(\): Field 999 is invalid for MySQL result index .*$/
+     */
+    public function test_mysql_list_fields_fail()
+    {
+        $this->getConnection();
+        $result = \mysql_list_fields("shim_test", "testing");
+        $this->assertResult($result);
+
+        \mysql_field_name($result, 999);
+    }
+
+    public function test_mysql_num_fields()
+    {
+        $this->getConnection('shim_test');
+        $result = \mysql_query("SELECT one, two FROM testing LIMIT 1");
+        $this->assertResult($result);
+
+        $this->assertEquals(2, \mysql_num_fields($result));
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Warning
+     * @expectedExceptionMessageRegExp /^mysql_num_fields\(\) expects parameter 1 to be resource, boolean given$/
+     */
+    public function test_mysql_num_fields_fail()
+    {
+        $this->getConnection('shim_test');
+        $result = \mysql_query("SELECT one, two FROM nonexistent");
+
+        \mysql_num_fields($result);
     }
 
     /**
@@ -232,7 +379,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
      */
     public function test_mysql_fetch($function, $results)
     {
-        $this->getConnection("mysql_shim");
+        $this->getConnection("shim_test");
 
         $result = \mysql_query("SELECT one, two FROM testing");
         $this->assertResult($result);
@@ -250,7 +397,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_num_rows()
     {
-        $this->getConnection("mysql_shim");
+        $this->getConnection("shim_test");
 
         $result = \mysql_query("SELECT * FROM testing");
         $this->assertResult($result);
@@ -259,13 +406,13 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_affected_rows()
     {
-        $this->getConnection("mysql_shim");
+        $this->getConnection("shim_test");
 
-        $result = \mysql_query("UPDATE testing SET one = one + 1, two = two + 1 ORDER BY one DESC LIMIT 4");
+        $result = \mysql_query("UPDATE testing SET one = one + 1000, two = two + 1000 ORDER BY one DESC LIMIT 4");
         $this->assertTrue($result);
         $this->assertEquals(4, \mysql_affected_rows());
-        $result = \mysql_query("UPDATE testing SET one = one - 1, two = two - 1 ORDER BY one DESC LIMIT 4");
-        $this->assertTrue($result);
+        $result = \mysql_query("UPDATE testing SET one = one - 1000, two = two - 1000 ORDER BY one DESC LIMIT 4");
+        $this->assertTrue($result, \mysql_error());
         $this->assertEquals(4, \mysql_affected_rows());
     }
 
@@ -313,7 +460,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         }
 
         fwrite(STDERR, "=> Running Docker Container: ");
-        static::$container = exec($docker . ' run -e MYSQL_ALLOW_EMPTY_PASSWORD=1 -P -d  mysql/mysql-server');
+        static::$container = exec($docker . ' run -e MYSQL_ALLOW_EMPTY_PASSWORD=1 -P -d  mysql/mysql-server:5.7');
 
         if (empty(static::$container)) {
             static::markTestSkipped("Unable to start docker container");
@@ -432,7 +579,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertConnection($mysql);
 
         if ($db !== null) {
-            $this->assertTrue(\mysql_select_db('shim_test'));
+            $this->assertTrue(\mysql_select_db($db));
         }
 
         return $mysql;
