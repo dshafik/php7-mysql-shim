@@ -505,7 +505,7 @@ namespace {
             return mysql_result($result, $row, 'Database');
         }
 
-        function mysql_table_name($result, $row)
+        function mysql_tablename($result, $row)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
@@ -584,9 +584,9 @@ namespace {
             return mysql_db_name(... $args);
         }
 
-        function mysql_tablename(... $args)
+        function mysql_table_name(... $args)
         {
-            return mysql_table_name(... $args);
+            return mysql_tablename(... $args);
         }
     }
 }

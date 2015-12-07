@@ -868,8 +868,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                 "args" => [0]
             ],
             [
-                "function" => "mysql_table_name",
-                "message" => "mysql_table_name() expects parameter 1 to be resource, null given",
+                "function" => "mysql_tablename",
+                "message" => "mysql_tablename() expects parameter 1 to be resource, null given",
                 "args" => [0]
             ],
         ];
