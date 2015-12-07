@@ -59,6 +59,10 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_connect_multi()
     {
+        if(defined('HHVM_VERSION'))  {
+            $this->markTestSkipped("HHVM Behavior differs from PHP");
+        }
+
         $conn = mysql_connect(static::$host, 'root');
         $conn2 = mysql_connect(static::$host, 'root');
 
@@ -87,33 +91,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     public function test_mysql_query_ddl()
     {
         $conn = mysql_connect(static::$host, 'root');
-        $result = mysql_query("CREATE DATABASE shim_test CHARACTER SET latin1;");
-        $this->assertTrue($result);
-        $result = mysql_select_db('shim_test');
-        $this->assertTrue($result);
-        $result = mysql_query(
-            "CREATE TABLE testing (
-                id int AUTO_INCREMENT,
-                one varchar(255),
-                two varchar(255),
-                three varchar(255),
-                four varchar(255),
-                five varchar(255),
-                six varchar(255),
-                seven varchar(255),
-                eight varchar(255),
-                nine ENUM('one', 'two', '\'three'),
-                ten SET('one', 'two', '\'\'three'),
-                eleven MEDIUMTEXT,
-                INDEX one_idx (one),
-                UNIQUE INDEX two_unq (two),
-                INDEX three_four_idx (three, four),
-                UNIQUE INDEX four_five_unq (four, five),
-                INDEX seven_eight_idx (seven, eight),
-                UNIQUE INDEX seven_eight_unq (seven, eight),
-                PRIMARY KEY (id)
-            ) CHARACTER SET latin1;"
-        );
+        $result = mysql_query("CREATE DATABASE IF NOT EXISTS shim_test");
         $this->assertTrue($result, mysql_error());
     }
 
@@ -122,12 +100,12 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->getConnection("shim_test");
         $result = mysql_query(
             "INSERT INTO
-                testing (one, two, three, four, five, six, seven, eight)
+                testing (one, two, three, four, five, six, seven, eight, nine, ten, eleven)
              VALUES
-                ('1', '1', '1', '1', '1', '1', '1', '1'),
-                ('2', '2', '2', '2', '2', '2', '2', '2'),
-                ('3', '3', '3', '3', '3', '3', '3', '3'),
-                ('4', '4', '4', '4', '4', '4', '4', '4')"
+                ('1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1'),
+                ('2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2'),
+                ('3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3'),
+                ('4', '4', '4', '4', '4', '4', '4', '4', '4', '4', '4')"
         );
 
         $this->assertTrue($result, mysql_error());
@@ -240,6 +218,18 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($result);
     }
 
+    public function test_mysql_insert_id()
+    {
+        $this->getConnection("shim_test");
+        $result = mysql_query(
+            "INSERT INTO
+                testing (id, one, two, three, four, five, six, seven, eight, nine, ten, eleven)
+             VALUES
+                (5, '5', '5', '5', '5', '5', '5', '5', '5', '5', '5', '5')");
+        $this->assertTrue($result);
+        $this->assertEquals(5, mysql_insert_id());
+    }
+
     public function test_mysql_list_dbs()
     {
         $this->getConnection();
@@ -272,6 +262,38 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->getConnection();
         $result = mysql_list_fields("shim_test", "testing");
         $this->assertResult($result);
+
+        while ($row = mysql_fetch_assoc($result)) {
+            $this->assertEquals(
+                [
+                    'Field',
+                    'Type',
+                    'Null',
+                    'Key',
+                    'Default',
+                    'Extra'
+                ],
+                array_keys($row)
+            );
+        }
+
+        return;
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Warning
+     * @expectedExceptionMessage mysql_list_fields(): Unable to save MySQL query result
+     */
+    public function test_mysql_list_fields_fail()
+    {
+        $this->getConnection();
+        $result = mysql_list_fields("shim_test", "nonexistent");
+    }
+
+    public function test_mysql_field()
+    {
+        $this->getConnection("shim_test");
+        $result = mysql_query("SELECT * FROM testing LIMIT 1");
 
         $this->assertEquals("testing", mysql_field_table($result, 0));
         $this->assertEquals("id", mysql_field_name($result, 0));
@@ -350,13 +372,60 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
      * @expectedException \PHPUnit_Framework_Error_Warning
      * @expectedExceptionMessageRegExp /^mysql_field_name\(\): Field 999 is invalid for MySQL result index .*$/
      */
-    public function test_mysql_list_fields_fail()
+    public function test_mysql_field_name_fail()
     {
-        $this->getConnection();
-        $result = mysql_list_fields("shim_test", "testing");
-        $this->assertResult($result);
+        $this->getConnection("shim_test");
+        $result = mysql_query("SELECT * FROM testing LIMIT 1");
 
-        mysql_field_name($result, 999);
+        $this->assertEquals("testing", mysql_field_name($result, 999));
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Warning
+     * @expectedExceptionMessageRegExp /^mysql_field_table\(\): Field 999 is invalid for MySQL result index .*$/
+     */
+    public function test_mysql_field_table_fail()
+    {
+        $this->getConnection("shim_test");
+        $result = mysql_query("SELECT * FROM testing LIMIT 1");
+
+        $this->assertEquals("testing", mysql_field_table($result, 999));
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Warning
+     * @expectedExceptionMessageRegExp /^mysql_field_type\(\): Field 999 is invalid for MySQL result index .*$/
+     */
+    public function test_mysql_field_type_fail()
+    {
+        $this->getConnection("shim_test");
+        $result = mysql_query("SELECT * FROM testing LIMIT 1");
+
+        $this->assertEquals("testing", mysql_field_type($result, 999));
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Warning
+     * @expectedExceptionMessageRegExp /^mysql_field_len\(\): Field 999 is invalid for MySQL result index .*$/
+     */
+    public function test_mysql_field_len_fail()
+    {
+        $this->getConnection("shim_test");
+        $result = mysql_query("SELECT * FROM testing LIMIT 1");
+
+        $this->assertEquals("testing", mysql_field_len($result, 999));
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Warning
+     * @expectedExceptionMessageRegExp /^mysql_field_flags\(\): Field 999 is invalid for MySQL result index .*$/
+     */
+    public function test_mysql_field_flags_fail()
+    {
+        $this->getConnection("shim_test");
+        $result = mysql_query("SELECT * FROM testing LIMIT 1");
+
+        $this->assertEquals("testing", mysql_field_flags($result, 999));
     }
 
     public function test_mysql_num_fields()
@@ -387,7 +456,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         $this->getConnection("shim_test");
 
-        $result = mysql_query("SELECT one, two FROM testing");
+        $result = mysql_query("SELECT one, two FROM testing LIMIT 4");
         $this->assertResult($result);
 
         $this->assertEquals(sizeof($results), mysql_num_rows($result));
@@ -405,7 +474,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         $this->getConnection("shim_test");
 
-        $result = mysql_query("SELECT * FROM testing");
+        $result = mysql_query("SELECT * FROM testing LIMIT 4");
         $this->assertResult($result);
         $this->assertEquals(4, mysql_num_rows($result));
     }
@@ -422,6 +491,74 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(4, mysql_affected_rows());
     }
 
+    public function test_mysql_result()
+    {
+        $this->getConnection();
+
+        $result = mysql_query("SELECT one, two AS aliased FROM testing");
+        $this->assertResult($result);
+
+        for($i = 0; $i < mysql_num_rows($result); $i++) {
+            $this->assertEquals($i+1, mysql_result($result, $i, 0));
+            $this->assertEquals($i+1, mysql_result($result, $i, 'one'));
+            $this->assertEquals($i+1, mysql_result($result, $i, 1));
+            $this->assertEquals($i+1, mysql_result($result, $i, 'aliased'));
+        }
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Warning
+     * @expectedExceptionMessageRegExp /^mysql_result\(\): three not found in MySQL result index (.*?)$/
+     */
+    public function test_mysql_result_fail()
+    {
+        $this->getConnection();
+
+        $result = mysql_query("SELECT one, two FROM testing LIMIT 1");
+        $this->assertResult($result);
+
+        mysql_result($result, 0, "three");
+    }
+
+    public function test_mysql_result_prefixed()
+    {
+        $this->getConnection();
+
+        $result = mysql_query("SELECT one, two FROM testing LIMIT 1");
+        $this->assertResult($result);
+
+        $this->assertEquals(1, mysql_result($result, 0, "testing.one"));
+        $this->assertEquals(1, mysql_result($result, 0, "testing.two"));
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Warning
+     * @expectedExceptionMessageRegExp /^mysql_result\(\): testing.three not found in MySQL result index (.*?)$/
+     */
+    public function test_mysql_result_prefixed_fail()
+    {
+        $this->getConnection();
+
+        $result = mysql_query("SELECT one, two FROM testing LIMIT 1");
+        $this->assertResult($result);
+
+        mysql_result($result, 0, "testing.three");
+    }
+
+    /**
+     * @expectedException \PHPUnit_Framework_Error_Warning
+     * @expectedExceptionMessageRegExp /^mysql_result\(\): Unable to jump to row 1 on MySQL result index (.*?)$/
+     */
+    public function test_mysql_result_invalid_row()
+    {
+        $this->getConnection();
+
+        $result = mysql_query("SELECT one FROM testing LIMIT 1");
+        $this->assertResult($result);
+
+        mysql_result($result, 1, 0);
+    }
+
     public function test_mysql_close()
     {
         mysql_connect(static::$host, 'root');
@@ -435,6 +572,34 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     public function test_mysql_close_fail()
     {
         mysql_close();
+    }
+
+    public function test_mysql_error()
+    {
+        $this->getConnection();
+
+        $this->assertEmpty(mysql_error());
+
+        $result = mysql_query("SELECT VERSION(");
+        $this->assertFalse($result);
+
+        $this->assertEquals(
+            "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version " .
+                "for the right syntax to use near '' at line 1",
+            mysql_error()
+        );
+    }
+
+    public function test_mysql_errno()
+    {
+        $this->getConnection();
+
+        $this->assertEmpty(mysql_errno());
+
+        $result = mysql_query("SELECT VERSION(");
+        $this->assertFalse($result);
+
+        $this->assertEquals(1064, mysql_errno());
     }
 
     public function tearDown()
@@ -501,6 +666,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
+
         static::$host = 'localhost';
     }
 
@@ -525,7 +691,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         }
 
         mysql_connect(static::$host, "root");
-        mysql_query("DROP DATABASE shim_test");
+        mysql_query("DROP DATABASE IF EXISTS shim_test");
     }
 
     public function mysql_fetch_DataProvider()
@@ -596,6 +762,34 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertConnection($mysql);
 
         mysql_query("SET NAMES latin1");
+
+        $result = mysql_query("CREATE DATABASE IF NOT EXISTS shim_test CHARACTER SET latin1;");
+        $this->assertTrue($result);
+        $result = mysql_select_db('shim_test');
+        $this->assertTrue($result);
+        $result = mysql_query(
+            "CREATE TABLE IF NOT EXISTS testing (
+                id int AUTO_INCREMENT,
+                one varchar(255),
+                two varchar(255),
+                three varchar(255),
+                four varchar(255),
+                five varchar(255),
+                six varchar(255),
+                seven varchar(255),
+                eight varchar(255),
+                nine ENUM('one', 'two', '\'three'),
+                ten SET('one', 'two', '\'\'three'),
+                eleven MEDIUMTEXT,
+                INDEX one_idx (one),
+                UNIQUE INDEX two_unq (two),
+                INDEX three_four_idx (three, four),
+                UNIQUE INDEX four_five_unq (four, five),
+                INDEX seven_eight_idx (seven, eight),
+                UNIQUE INDEX seven_eight_unq (seven, eight),
+                PRIMARY KEY (id)
+            ) CHARACTER SET latin1;"
+        );
 
         if ($db !== null) {
             $this->assertTrue(mysql_select_db($db));

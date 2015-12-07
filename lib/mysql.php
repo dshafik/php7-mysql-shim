@@ -154,15 +154,19 @@ namespace {
         {
             $link = \Dshafik\MySQL::getConnection($link);
             $result = mysql_query(
-                "SHOW FULL COLUMNS FROM " .
+                "SHOW COLUMNS FROM " .
                 mysqli_real_escape_string($link, $databaseName) . "." .
                 mysqli_real_escape_string($link, $tableName),
                 $link
             );
+
             if ($result instanceof \mysqli_result) {
                 $result->table = $tableName;
+                return $result;
             }
-            return $result;
+
+            trigger_error("mysql_list_fields(): Unable to save MySQL query result", E_USER_WARNING);
+            return false;
         }
 
         function mysql_list_processes(\mysqli $link = null)
@@ -193,18 +197,51 @@ namespace {
         function mysql_result(\mysqli_result $result, $row, $field = 0)
         {
             if (!mysqli_data_seek($result, $row)) {
+                trigger_error(
+                    sprintf(
+                        "mysql_result(): Unable to jump to row %d on MySQL result index %s",
+                        $row,
+                        spl_object_hash($result)
+                    ),
+                    E_USER_WARNING
+                );
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
 
-            if ($row = mysqli_fetch_array($result) === false) {
-                return false;
+            $found = true;
+            if (strpos($field, ".") !== false) {
+                list($table, $name) =  explode(".", $field);
+                $i = 0;
+                $found = false;
+                while ($column = mysqli_fetch_field($result)) {
+                    if ($column->table == $table && $column->name == $name) {
+                        $field = $i;
+                        $found = true;
+                        break;
+                    }
+                    $i++;
+                }
             }
 
-            if (isset($row[$field])) {
+            $row = mysql_fetch_array($result);
+            if ($found && isset($row[$field])) {
                 return $row[$field];
             }
 
+            trigger_error(
+                sprintf(
+                    "%s(): %s not found in MySQL result index %s",
+                    __FUNCTION__,
+                    $field,
+                    spl_object_hash($result)
+                ),
+                E_USER_WARNING
+            );
+            // @codeCoverageIgnoreStart
             return false;
+            // @codeCoverageIgnoreEnd
         }
 
         function mysql_num_rows(\mysqli_result $result)
@@ -322,7 +359,7 @@ namespace {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 return false;
             }
-            return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'length');
+            return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'len');
         }
 
         function mysql_field_type($result, $field)
@@ -518,10 +555,13 @@ namespace Dshafik {
 
         public static function mysqlFieldInfo(\mysqli_result $result, $field, $what)
         {
-            if (!\mysqli_data_seek($result, $field)) {
+            try {
+                $field = mysqli_fetch_field_direct($result, $field);
+            } catch (\Exception $e) {
                 trigger_error(
                     sprintf(
-                        "mysql_field_name(): Field %d is invalid for MySQL result index %s",
+                        "mysql_field_%s(): Field %d is invalid for MySQL result index %s",
+                        $what,
                         $field,
                         spl_object_hash($result)
                     ),
@@ -533,60 +573,20 @@ namespace Dshafik {
                 // @codeCoverageIgnoreEnd
             }
 
-            $field = \mysql_fetch_assoc($result);
+            if ($what == 'name' || $what == 'table') {
+                return $field->{$what};
+            }
 
-            switch ($what) {
-                case "name":
-                    return $field['Field'];
-                case "table":
-                    return $result->table;
-                case "length":
-                case "type":
-                    $matches = [];
-                    preg_match("/(?<type>[a-z]+)(?:\((?<length>.+)\))?/", $field['Type'], $matches);
-                    if (!isset($matches[$what])) {
-                        $matches[$what] = null;
-                    }
-                    if ($what == 'length') {
-                        return static::getFieldLength($matches[$what], $field['Type']);
-                    }
-                    return static::getFieldType($matches[$what]);
-                case "flags":
-                    $flags = [];
-                    if ($field['Null'] == "NO") {
-                        $flags[] = "not_null";
-                    }
+            if ($what == 'len') {
+                return $field->length;
+            }
 
-                    if ($field['Key'] == 'PRI') {
-                        $flags[] = "primary_key";
-                    }
+            if ($what == 'type') {
+                return static::getFieldType($field->type);
+            }
 
-                    if (strpos($field['Extra'], "auto_increment") !== false) {
-                        $flags[] = "auto_increment";
-                    }
-
-                    if ($field['Key'] == 'UNI') {
-                        $flags[] = "unique_key";
-                    }
-
-                    if ($field['Key'] == 'MUL') {
-                        $flags[] = "multiple_key";
-                    }
-
-                    $type = strtolower($field['Type']);
-                    if (in_array(substr($type, -4), ["text", "blob"])) {
-                        $flags[] = "blob";
-                    }
-
-                    if (substr($type, 0, 4) == "enum") {
-                        $flags[] = "enum";
-                    }
-
-                    if (substr($type, 0, 3) == "set") {
-                        $flags[] = "set";
-                    }
-
-                    return implode(" ", $flags);
+            if ($what == 'flags') {
+                return static::getFieldFlags($field->flags);
             }
 
             return false;
@@ -603,88 +603,105 @@ namespace Dshafik {
             }
         }
 
-        protected static function getFieldLength($what, $type)
+        protected static function getFieldFlags($what)
         {
-            if (is_numeric($what)) {
-                return (int) $what;
+            // Order of flags taken from http://lxr.php.net/xref/PHP_5_6/ext/mysql/php_mysql.c#2507
+
+            $flags = [];
+            if ($what & MYSQLI_NOT_NULL_FLAG) {
+                $flags[] = "not_null";
             }
 
-            switch ($type) {
-                case "text":
-                case "blob":
-                    return 65535;
-                case "longtext":
-                case "longblob":
-                    return 4294967295;
-                case "tinytext":
-                case "tinyblob":
-                    return 255;
-                case "mediumtext":
-                case "mediumblob":
-                    return 16777215;
+            if ($what & MYSQLI_PRI_KEY_FLAG) {
+                $flags[] = "primary_key";
             }
 
-            if (strtolower(substr($type, 0, 3)) == "set") {
-                return (int)strlen($what)
-                - 2                                         // Remove open and closing quotes
-                - substr_count($what, "'")              // Remove quotes
-                + substr_count($what, "'''")            // Re-add escaped quotes
-                + (
-                    substr_count(
-                        str_replace("'''", "'", $what), // Remove escaped quotes
-                        "'"
-                    )
-                    / 2                                 // We have two quotes per value
-                )
-                - 1;                                    // But we have one less comma than values
+            if ($what & MYSQLI_UNIQUE_KEY_FLAG) {
+                $flags[] = "unique_key";
             }
 
-            if (strtolower(substr($type, 0, 4) == "enum")) {
-                $values = str_getcsv($what, ",", "'", "'");
-                return (int) max(array_map('strlen', $values));
+            if ($what & MYSQLI_MULTIPLE_KEY_FLAG) {
+                $flags[] = "multiple_key";
             }
+
+            if ($what & MYSQLI_BLOB_FLAG) {
+                $flags[] = "blob";
+            }
+
+            if ($what & MYSQLI_UNSIGNED_FLAG) {
+                $flags[] = "unsigned";
+            }
+
+            if ($what & MYSQLI_ZEROFILL_FLAG) {
+                $flags[] = "zerofill";
+            }
+
+            if ($what & MYSQLI_BINARY_FLAG) {
+                $flags[] = "binary";
+            }
+
+            if ($what & MYSQLI_ENUM_FLAG) {
+                $flags[] = "enum";
+            }
+
+            if ($what & MYSQLI_SET_FLAG) {
+                $flags[] = "set";
+            }
+
+
+            if ($what & MYSQLI_AUTO_INCREMENT_FLAG) {
+                $flags[] = "auto_increment";
+            }
+
+            if ($what & MYSQLI_TIMESTAMP_FLAG) {
+                $flags[] = "timestamp";
+            }
+
+            return implode(" ", $flags);
         }
 
         protected static function getFieldType($what)
         {
-            switch (strtolower($what)) {
-                case "char":
-                case "varchar":
-                case "binary":
-                case "varbinary":
-                case "enum":
-                case "set":
+            switch ($what) {
+                case MYSQLI_TYPE_STRING:
+                case MYSQLI_TYPE_VAR_STRING:
+                case MYSQLI_TYPE_ENUM:
+                case MYSQLI_TYPE_SET:
                     return "string";
-                case "text":
-                case "tinytext":
-                case "mediumtext":
-                case "longtext":
-                case "blob":
-                case "tinyblob":
-                case "mediumblob":
-                case "longblob":
-                    return "blob";
-                case "integer":
-                case "bit":
-                case "int":
-                case "smallint":
-                case "tinyint":
-                case "mediumint":
-                case "bigint":
+                case MYSQLI_TYPE_LONG:
+                case MYSQLI_TYPE_TINY:
+                case MYSQLI_TYPE_SHORT:
+                case MYSQLI_TYPE_INT24:
+                case MYSQLI_TYPE_CHAR:
+                case MYSQLI_TYPE_LONGLONG:
                     return "int";
-                case "decimal":
-                case "numeric":
-                case "float":
-                case "double":
+                case MYSQLI_TYPE_DECIMAL:
+                case MYSQLI_TYPE_FLOAT:
+                case MYSQLI_TYPE_DOUBLE:
+                case MYSQLI_TYPE_NEWDECIMAL:
                     return "real";
-                case "date":
-                case "time":
-                case "timestamp":
-                case "year":
-                case "datetime":
-                case "null":
-                case "geometry":
-                    return $what;
+                case MYSQLI_TYPE_DATETIME:
+                    return "datetime";
+                case MYSQLI_TYPE_TIMESTAMP:
+                    return "timestamp";
+                case MYSQLI_TYPE_NEWDATE:
+                case MYSQLI_TYPE_DATE:
+                    return "date";
+                case MYSQLI_TYPE_TIME:
+                    return "time";
+                case MYSQLI_TYPE_YEAR:
+                    return "year";
+                case MYSQLI_TYPE_TINY_BLOB:
+                case MYSQLI_TYPE_MEDIUM_BLOB:
+                case MYSQLI_TYPE_LONG_BLOB:
+                case MYSQLI_TYPE_BLOB:
+                    return "blob";
+                case MYSQLI_TYPE_NULL:
+                    return "null";
+                case MYSQLI_TYPE_GEOMETRY:
+                    return "geometry";
+                case MYSQLI_TYPE_INTERVAL:
+                case MYSQLI_TYPE_BIT:
                 default:
                     return "unknown";
             }
