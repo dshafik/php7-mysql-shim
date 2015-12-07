@@ -59,9 +59,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_connect_multi()
     {
-        if(defined('HHVM_VERSION'))  {
-            $this->markTestSkipped("HHVM Behavior differs from PHP");
-        }
+        $this->skipForHHVM();
 
         $conn = mysql_connect(static::$host, 'root');
         $conn2 = mysql_connect(static::$host, 'root');
@@ -202,6 +200,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_db_query()
     {
+        $this->skipForHHVM();
+
         $this->getConnection();
         $result = mysql_db_query("shim_test", "SELECT DATABASE()");
         $this->assertResult($result);
@@ -213,6 +213,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_db_query_fail()
     {
+        $this->skipForHHVM();
+
         $this->getConnection();
         $result = mysql_db_query("nonexistent", "SELECT DATABASE()");
         $this->assertFalse($result);
@@ -259,6 +261,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_list_fields()
     {
+        $this->skipForHHVM();
+
         $this->getConnection();
         $result = mysql_list_fields("shim_test", "testing");
         $this->assertResult($result);
@@ -940,5 +944,12 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             $mysql instanceof \mysqli,
             "Not a valid MySQL connection"
         );
+    }
+
+    protected function skipForHHVM()
+    {
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped("HHVM Behavior differs from PHP");
+        }
     }
 }
