@@ -166,7 +166,9 @@ namespace {
             }
 
             trigger_error("mysql_list_fields(): Unable to save MySQL query result", E_USER_WARNING);
+            // @codeCoverageIgnoreStart
             return false;
+            // @codeCoverageIgnoreEnd
         }
 
         function mysql_list_processes(\mysqli $link = null)
@@ -194,8 +196,14 @@ namespace {
             return mysqli_insert_id(\Dshafik\MySQL::getConnection($link));
         }
 
-        function mysql_result(\mysqli_result $result, $row, $field = 0)
+        function mysql_result($result, $row, $field = 0)
         {
+            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
+                return false;
+                // @codeCoverageIgnoreEnd
+            }
+
             if (!mysqli_data_seek($result, $row)) {
                 trigger_error(
                     sprintf(
@@ -244,8 +252,14 @@ namespace {
             // @codeCoverageIgnoreEnd
         }
 
-        function mysql_num_rows(\mysqli_result $result)
+        function mysql_num_rows($result)
         {
+            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
+                return false;
+                // @codeCoverageIgnoreEnd
+            }
+
             $previous = error_reporting(0);
             $rows = mysqli_num_rows($result);
             error_reporting($previous);
@@ -256,23 +270,29 @@ namespace {
         function mysql_num_fields($result)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return mysqli_num_fields($result);
         }
 
-        function mysql_fetch_row($result) /* : array|null */
+        function mysql_fetch_row($result)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return mysqli_fetch_row($result);
         }
 
-        function mysql_fetch_array($result) /* : array|null */
+        function mysql_fetch_array($result)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return mysqli_fetch_array($result);
         }
@@ -280,7 +300,9 @@ namespace {
         function mysql_fetch_assoc($result) /* : array|null */
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return mysqli_fetch_assoc($result);
         }
@@ -288,7 +310,9 @@ namespace {
         function mysql_fetch_object($result, $class = null, array $params = []) /* : object|null */
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
 
             if ($class == null) {
@@ -301,7 +325,9 @@ namespace {
         function mysql_data_seek($result, $offset)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return mysqli_data_seek($result, $offset);
         }
@@ -309,7 +335,9 @@ namespace {
         function mysql_fetch_lengths($result) /* : array|*/
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return mysqli_fetch_lengths($result);
         }
@@ -317,7 +345,9 @@ namespace {
         function mysql_fetch_field($result) /* : object|*/
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return mysqli_fetch_field($result);
         }
@@ -325,7 +355,9 @@ namespace {
         function mysql_field_seek($result, $field)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return mysqli_field_seek($result, $field);
         }
@@ -333,7 +365,9 @@ namespace {
         function mysql_free_result($result)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return mysqli_free_result($result);
         }
@@ -341,7 +375,9 @@ namespace {
         function mysql_field_name($result, $field)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'name');
         }
@@ -349,7 +385,9 @@ namespace {
         function mysql_field_table($result, $field)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'table');
         }
@@ -357,7 +395,9 @@ namespace {
         function mysql_field_len($result, $field)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'len');
         }
@@ -365,7 +405,9 @@ namespace {
         function mysql_field_type($result, $field)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'type');
         }
@@ -373,13 +415,26 @@ namespace {
         function mysql_field_flags($result, $field)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
             return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'flags');
         }
 
         function mysql_escape_string($unescapedString)
         {
+            if (\Dshafik\MySQL::$last_connection == null) {
+                trigger_error(
+                    sprintf(
+                        "%s() is insecure; use mysql_real_escape_string() instead!",
+                        __FUNCTION__
+                    ),
+                    E_USER_NOTICE
+                );
+
+                return \Dshafik\MySQL::escapeString($unescapedString);
+            }
             return mysql_real_escape_string($unescapedString, null);
         }
 
@@ -438,20 +493,28 @@ namespace {
             return mysqli_set_charset(\Dshafik\MySQL::getConnection($link), $charset);
         }
 
-        function mysql_db_name($result)
+        function mysql_db_name($result, $row)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
-            return mysqli_fetch_row($result)['Database'];
+
+            // Alias as per http://lxr.php.net/xref/PHP_5_6/ext/mysql/php_mysql.c#319
+            return mysql_result($result, $row, 'Database');
         }
 
-        function mysql_table_name($result)
+        function mysql_table_name($result, $row)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+                // @codeCoverageIgnoreStart
                 return false;
+                // @codeCoverageIgnoreEnd
             }
-            return mysqli_fetch_row($result)['Table'];
+
+            // Alias as per http://lxr.php.net/xref/PHP_5_6/ext/mysql/php_mysql.c#321
+            return mysql_result($result, $row, 'Table');
         }
 
         /* Aliases */
@@ -595,12 +658,52 @@ namespace Dshafik {
         public static function checkValidResult($result, $function)
         {
             if (!($result instanceof \mysqli_result)) {
-                trigger_error(
-                    $function . "() expects parameter 1 to be resource, " . gettype($result) . " given",
-                    E_USER_WARNING
-                );
+                if ($function != "mysql_fetch_object") {
+                    trigger_error(
+                        $function . "() expects parameter 1 to be resource, " . strtolower(gettype($result)) . " given",
+                        E_USER_WARNING
+                    );
+                }
+
+                if ($function == "mysql_fetch_object") {
+                    trigger_error(
+                        $function . "(): supplied argument is not a valid MySQL result resource",
+                        E_USER_WARNING
+                    );
+                }
                 return false;
             }
+
+        }
+
+        public static function escapeString($unescapedString)
+        {
+            $escapedString = "";
+            for ($i = 0; $i < strlen($unescapedString); $i++) {
+                switch ($unescapedString{$i}) {
+                    case "\0":
+                        $esc = 0;
+                        break;
+                    case "\n":
+                        $esc = "n";
+                        break;
+                    case "\r":
+                        $esc = "r";
+                        break;
+                    case '\\':
+                    case '\'':
+                    case '"':
+                        $esc = $unescapedString{$i};
+                        break;
+                    case "\032":
+                        $esc = 'Z';
+                        break;
+                }
+                $escapedString .= "\\$esc";
+
+            }
+
+            return $escapedString;
         }
 
         protected static function getFieldFlags($what)

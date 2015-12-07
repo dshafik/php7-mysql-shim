@@ -450,6 +450,21 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @dataProvider mysql_function_invalid_result_DataProvider
+     */
+    public function test_mysql_function_invalid_result($function, $error, $args)
+    {
+        try {
+            if ($args !== []) {
+                $function(null, ...$args);
+            }
+            $function(null);
+        } catch (\PHPUnit_Framework_Error_Warning $e) {
+            $this->assertEquals($error, $e->getMessage());
+        }
+    }
+
+    /**
      * @dataProvider mysql_fetch_DataProvider
      */
     public function test_mysql_fetch($function, $results)
@@ -602,6 +617,21 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1064, mysql_errno());
     }
 
+    public function test_mysql_escape_string()
+    {
+        $this->assertEquals('\\\'\0\Z\r\n\"\\\\', @mysql_escape_string("'\0\032\r\n\"\\"));
+    }
+
+    /**
+     * @requires PHP 7.0.0
+     * @expectedException \PHPUnit_Framework_Error_Notice
+     * @expectedExceptionMessage mysql_escape_string() is insecure; use mysql_real_escape_string() instead!
+     */
+    public function test_mysql_escape_string_notice()
+    {
+        mysql_escape_string("'\0\032\r\n\"\\");
+    }
+
     public function tearDown()
     {
         @mysql_close();
@@ -741,6 +771,107 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                 'function' => 'mysql_fetch_object',
                 'results' => $object,
             ]
+        ];
+    }
+
+    public function mysql_function_invalid_result_DataProvider()
+    {
+        return [
+            [
+                "function" => "mysql_result",
+                "message" => "mysql_result() expects parameter 1 to be resource, null given",
+                "args" => [0]
+            ],
+            [
+                "function" => "mysql_num_rows",
+                "message" => "mysql_num_rows() expects parameter 1 to be resource, null given",
+                "args" => [],
+            ],
+            [
+                "function" => "mysql_num_fields",
+                "message" => "mysql_num_fields() expects parameter 1 to be resource, null given",
+                "args" => [],
+            ],
+            [
+                "function" => "mysql_fetch_row",
+                "message" => "mysql_fetch_row() expects parameter 1 to be resource, null given",
+                "args" => [],
+            ],
+            [
+                "function" => "mysql_fetch_array",
+                "message" => "mysql_fetch_array() expects parameter 1 to be resource, null given",
+                "args" => [],
+            ],
+            [
+                "function" => "mysql_fetch_assoc",
+                "message" => "mysql_fetch_assoc() expects parameter 1 to be resource, null given",
+                "args" => [],
+            ],
+            [
+                "function" => "mysql_fetch_object",
+                "message" => "mysql_fetch_object(): supplied argument is not a valid MySQL result resource",
+                "args" => ["StdClass"]
+            ],
+            [
+                "function" => "mysql_data_seek",
+                "message" => "mysql_data_seek() expects parameter 1 to be resource, null given",
+                "args" => [0]
+            ],
+            [
+                "function" => "mysql_fetch_lengths",
+                "message" => "mysql_fetch_lengths() expects parameter 1 to be resource, null given",
+                "args" => []
+            ],
+            [
+                "function" => "mysql_fetch_field",
+                "message" => "mysql_fetch_field() expects parameter 1 to be resource, null given",
+                "args" => []
+            ],
+            [
+                "function" => "mysql_field_seek",
+                "message" => "mysql_field_seek() expects parameter 1 to be resource, null given",
+                "args" => [0]
+            ],
+            [
+                "function" => "mysql_free_result",
+                "message" => "mysql_free_result() expects parameter 1 to be resource, null given",
+                "args" => []
+            ],
+            [
+                "function" => "mysql_field_name",
+                "message" => "mysql_field_name() expects parameter 1 to be resource, null given",
+                "args" => [0]
+            ],
+            [
+                "function" => "mysql_field_table",
+                "message" => "mysql_field_table() expects parameter 1 to be resource, null given",
+                "args" => [0]
+            ],
+            [
+                "function" => "mysql_field_len",
+                "message" => "mysql_field_len() expects parameter 1 to be resource, null given",
+                "args" => [0]
+            ],
+            [
+                "function" => "mysql_field_type",
+                "message" => "mysql_field_type() expects parameter 1 to be resource, null given",
+                "args" => [0]
+            ],
+            [
+                "function" => "mysql_field_flags",
+                "message" => "mysql_field_flags() expects parameter 1 to be resource, null given",
+                "args" => [0]
+            ],
+            [
+                "function" => "mysql_db_name",
+                "message" => "mysql_db_name() expects parameter 1 to be resource, null given",
+                "args" => [0]
+            ],
+            [
+                "function" => "mysql_table_name",
+                "message" => "mysql_table_name() expects parameter 1 to be resource, null given",
+                "args" => [0]
+            ],
         ];
     }
 
