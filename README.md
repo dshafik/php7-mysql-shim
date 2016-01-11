@@ -25,6 +25,9 @@ Once the file is included, it will create `mysql_*` function if they don't alrea
 ## Caveats
 
 - Calls to `is_resource()` and `get_resource_type()` on MySQL connections and results will fail as these are now their `mysqli` equivalents.
+<<<<<<< HEAD
 - Some errors are now from `ext/mysqli`, and others are `E_USER_WARNING` instead of `E_WARNING`.
-- You must use the `mysqli.*` INI entries instead of `mysql.*` (e.g. `mysqli.default_user` instead of `mysql.default_usert`)
+- You must use the `mysqli.*` INI entries instead of `mysql.*` (e.g. `mysqli.default_user` instead of `mysql.default_user`)
 - Column lengths reported by `mysql_field_len()` assume `latin1`
+- If no host, username, password parameter is provided when using the `mysql_*` functions, the default values from the corresponding `mysqli.*` settings from `php.ini` file will be used
+(e.g. `mysqli.default_host`, `mysqli.default_user`, `mysqli.default_pw`)
