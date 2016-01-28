@@ -315,11 +315,18 @@ namespace {
                 // @codeCoverageIgnoreEnd
             }
 
+            $object = null;
             if ($class == null) {
-                return mysqli_fetch_object($result);
+                $object = mysqli_fetch_object($result);
+            } else {
+                $object = mysqli_fetch_object($result, $class, $params);
             }
 
-            return mysqli_fetch_object($result, $class, $params);
+            if($object == null) {
+                return false;
+            }
+            
+            return $object;
         }
 
         function mysql_data_seek($result, $offset)
