@@ -284,7 +284,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
-            return mysqli_fetch_row($result);
+            return mysqli_fetch_row($result) ?: false;
         }
 
         function mysql_fetch_array($result)
@@ -294,7 +294,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
-            return mysqli_fetch_array($result);
+            return mysqli_fetch_array($result) ?: false;
         }
 
         function mysql_fetch_assoc($result) /* : array|null */
@@ -304,7 +304,8 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
-            return mysqli_fetch_assoc($result);
+
+            return mysqli_fetch_assoc($result) ?: false;
         }
 
         function mysql_fetch_object($result, $class = null, array $params = []) /* : object|null */
@@ -321,11 +322,7 @@ namespace {
                 $object = mysqli_fetch_object($result, $class, $params);
             }
 
-            if($object == null) {
-                return false;
-            }
-            
-            return $object;
+            return $object ?: false;
         }
 
         function mysql_data_seek($result, $offset)

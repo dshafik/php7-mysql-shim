@@ -489,6 +489,20 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(sizeof($results), $i);
     }
 
+    /**
+     * @param $function
+     * @dataProvider mysql_fetch_no_rows_dataProvider
+     */
+    public function test_mysql_fetch_no_rows($function)
+    {
+        $this->getConnection("shim_test");
+        $result = mysql_query("SELECT * FROM testing WHERE one = 'fail'");
+
+        $this->assertResult($result);
+        $this->assertEquals(0, mysql_num_rows($result));
+        $this->assertFalse($function($result));
+    }
+
     public function test_mysql_num_rows()
     {
         $this->getConnection("shim_test");
@@ -654,8 +668,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
             if (!empty($dm)) {
                 fwrite(STDERR, "=> Starting Docker Machine\n");
-                exec($dm . ' create -d virtualbox mysql-shim');
-                exec($dm . ' start mysql-shim');
+                passthru($dm . ' create -d virtualbox mysql-shim');
+                passthru($dm . ' start mysql-shim');
 
                 $env = '';
                 exec($dm . ' env mysql-shim', $env);
@@ -775,6 +789,24 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                 'function' => 'mysql_fetch_object',
                 'results' => $object,
             ]
+        ];
+    }
+
+    public function mysql_fetch_no_rows_dataProvider()
+    {
+        return [
+            [
+                'function' => 'mysql_fetch_array',
+            ],
+            [
+                'function' => 'mysql_fetch_assoc',
+            ],
+            [
+                'function' => 'mysql_fetch_row',
+            ],
+            [
+                'function' => 'mysql_fetch_object',
+            ],
         ];
     }
 
