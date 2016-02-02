@@ -304,7 +304,12 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
-            return mysqli_fetch_assoc($result);
+            $row = mysqli_fetch_assoc($result);
+            if ($row == null) {
+                return false;
+            }
+
+            return $row;
         }
 
         function mysql_fetch_object($result, $class = null, array $params = []) /* : object|null */
