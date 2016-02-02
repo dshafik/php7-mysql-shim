@@ -185,10 +185,13 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         mysql_free_result($result);
     }
 
+    /**
+     * @requires PHP < 7.0.0
+     */
     public function test_mysql_unbuffered_query_close_legacy()
     {
         if (!version_compare(PHP_VERSION, '7.0.0', '<')) {
-            $this->markTestSkipped("PHP < 7.0.0 is required");
+            $this->markTestIncomplete("PHP < 7.0.0 is required");
         }
 
         $conn = $this->getConnection("shim_test");
