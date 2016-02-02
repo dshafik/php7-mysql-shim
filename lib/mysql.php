@@ -2,10 +2,13 @@
 namespace {
 
     if (!function_exists('\mysql_connect')) {
-        define('MYSQL_CLIENT_COMPRESS', MYSQLI_CLIENT_COMPRESS);
-        define('MYSQL_CLIENT_IGNORE_SPACE', MYSQLI_CLIENT_IGNORE_SPACE);
-        define('MYSQL_CLIENT_INTERACTIVE', MYSQLI_CLIENT_INTERACTIVE);
-        define('MYSQL_CLIENT_SSL', MYSQLI_CLIENT_SSL);
+        define ('MYSQL_ASSOC', 1);
+        define ('MYSQL_NUM', 2);
+        define ('MYSQL_BOTH', 3);
+        define ('MYSQL_CLIENT_COMPRESS', 32);
+        define ('MYSQL_CLIENT_SSL', 2048);
+        define ('MYSQL_CLIENT_INTERACTIVE', 1024);
+        define ('MYSQL_CLIENT_IGNORE_SPACE', 256);
 
         function mysql_connect(
             $hostname = null,

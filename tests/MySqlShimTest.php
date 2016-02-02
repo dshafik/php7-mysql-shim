@@ -86,6 +86,24 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('persistent', $row[0]);
     }
 
+    public function test_mysql_constants()
+    {
+        $this->assertTrue(defined('MYSQL_ASSOC'));
+        $this->assertEquals(constant('MYSQL_ASSOC'), 1);
+        $this->assertTrue(defined('MYSQL_NUM'));
+        $this->assertEquals(constant('MYSQL_NUM'), 2);
+        $this->assertTrue(defined('MYSQL_BOTH'));
+        $this->assertEquals(constant('MYSQL_BOTH'), 3);
+        $this->assertTrue(defined('MYSQL_CLIENT_COMPRESS'));
+        $this->assertEquals(constant('MYSQL_CLIENT_COMPRESS'), 32);
+        $this->assertTrue(defined('MYSQL_CLIENT_SSL'));
+        $this->assertEquals(constant('MYSQL_CLIENT_SSL'), 2048);
+        $this->assertTrue(defined('MYSQL_CLIENT_INTERACTIVE'));
+        $this->assertEquals(constant('MYSQL_CLIENT_INTERACTIVE'), 1024);
+        $this->assertTrue(defined('MYSQL_CLIENT_IGNORE_SPACE'));
+        $this->assertEquals(constant('MYSQL_CLIENT_IGNORE_SPACE'), 256);
+    }
+
     public function test_mysql_query_ddl()
     {
         $conn = mysql_connect(static::$host, 'root');
