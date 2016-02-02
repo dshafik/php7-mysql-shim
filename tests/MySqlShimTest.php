@@ -637,11 +637,9 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $result = mysql_query("SELECT VERSION(");
         $this->assertFalse($result);
 
-        $this->assertEquals(
-            "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version " .
-                "for the right syntax to use near '' at line 1",
-            mysql_error()
-        );
+        $this->assertRegExp(
+            '@You have an error in your SQL syntax; check the manual that corresponds to your (.*?) ' .
+            'server version for the right syntax to use near \'\' at line 1@', mysql_error());
     }
 
     public function test_mysql_errno()
