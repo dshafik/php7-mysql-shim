@@ -656,7 +656,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_escape_string()
     {
-        $this->assertEquals('\\\'\0\Z\r\n\"\\\\', @mysql_escape_string("'\0\032\r\n\"\\"));
+        $this->assertEquals('\\\'\0\Z\r\n\"\\\\safestring', @mysql_escape_string("'\0\032\r\n\"\\safestring"));
     }
 
     /**

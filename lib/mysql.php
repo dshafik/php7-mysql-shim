@@ -688,24 +688,28 @@ namespace Dshafik {
             for ($i = 0; $i < strlen($unescapedString); $i++) {
                 switch ($unescapedString{$i}) {
                     case "\0":
-                        $esc = 0;
+                        $esc = "\\0";
                         break;
                     case "\n":
-                        $esc = "n";
+                        $esc = "\\n";
                         break;
                     case "\r":
-                        $esc = "r";
+                        $esc = "\\r";
                         break;
                     case '\\':
                     case '\'':
                     case '"':
-                        $esc = $unescapedString{$i};
+                        $esc = "\\{$unescapedString{$i}}";
                         break;
                     case "\032":
-                        $esc = 'Z';
+                        $esc = "\\Z";
+                        break;
+                    default:
+                        $esc = $unescapedString{$i};
                         break;
                 }
-                $escapedString .= "\\$esc";
+
+                $escapedString .= $esc;
 
             }
 
