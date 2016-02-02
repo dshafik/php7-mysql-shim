@@ -315,7 +315,6 @@ namespace {
                 // @codeCoverageIgnoreEnd
             }
 
-            $object = null;
             if ($class == null) {
                 $object = mysqli_fetch_object($result);
             } else {
