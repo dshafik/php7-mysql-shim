@@ -221,8 +221,6 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_db_query()
     {
-        $this->skipForHHVM();
-
         $this->getConnection();
         $result = mysql_db_query("shim_test", "SELECT DATABASE()");
         $this->assertResult($result);
@@ -234,8 +232,6 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_db_query_fail()
     {
-        $this->skipForHHVM();
-
         $this->getConnection();
         $result = mysql_db_query("nonexistent", "SELECT DATABASE()");
         $this->assertFalse($result);
@@ -282,8 +278,6 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_list_fields()
     {
-        $this->skipForHHVM();
-
         $this->getConnection();
         $result = mysql_list_fields("shim_test", "testing");
         $this->assertResult($result);
@@ -395,7 +389,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessageRegExp /^mysql_field_name\(\): Field 999 is invalid for MySQL result index .*$/
+     * @expectedExceptionMessageRegExp /^(mysql_field_name\(\)):)? Field 999 is invalid for MySQL result index .*$/
      */
     public function test_mysql_field_name_fail()
     {
@@ -407,7 +401,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessageRegExp /^mysql_field_table\(\): Field 999 is invalid for MySQL result index .*$/
+     * @expectedExceptionMessageRegExp /^(mysql_field_table\(\):)? Field 999 is invalid for MySQL result index .*$/
      */
     public function test_mysql_field_table_fail()
     {
@@ -419,7 +413,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessageRegExp /^mysql_field_type\(\): Field 999 is invalid for MySQL result index .*$/
+     * @expectedExceptionMessageRegExp /^(mysql_field_type\(\):)? Field 999 is invalid for MySQL result index .*$/
      */
     public function test_mysql_field_type_fail()
     {
@@ -431,7 +425,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessageRegExp /^mysql_field_len\(\): Field 999 is invalid for MySQL result index .*$/
+     * @expectedExceptionMessageRegExp /^(mysql_field_len\(\):)? Field 999 is invalid for MySQL result index .*$/
      */
     public function test_mysql_field_len_fail()
     {
@@ -443,7 +437,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessageRegExp /^mysql_field_flags\(\): Field 999 is invalid for MySQL result index .*$/
+     * @expectedExceptionMessageRegExp /^(mysql_field_flags\(\):)? Field 999 is invalid for MySQL result index .*$/
      */
     public function test_mysql_field_flags_fail()
     {
@@ -485,7 +479,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             }
             $function(null);
         } catch (\PHPUnit_Framework_Error_Warning $e) {
-            $this->assertEquals($error, $e->getMessage());
+            $this->assertRequest('@' . $error . '@', $e->getMessage());
         }
     }
 
@@ -562,7 +556,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessageRegExp /^mysql_result\(\): three not found in MySQL result index (.*?)$/
+     * @expectedExceptionMessageRegExp /^(mysql_result\(\):)? three not found in MySQL result index (.*?)$/
      */
     public function test_mysql_result_fail()
     {
@@ -587,7 +581,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessageRegExp /^mysql_result\(\): testing.three not found in MySQL result index (.*?)$/
+     * @expectedExceptionMessageRegExp /^(mysql_result\(\):)? testing.three not found in MySQL result index (.*?)$/
      */
     public function test_mysql_result_prefixed_fail()
     {
@@ -601,7 +595,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \PHPUnit_Framework_Error_Warning
-     * @expectedExceptionMessageRegExp /^mysql_result\(\): Unable to jump to row 1 on MySQL result index (.*?)$/
+     * @expectedExceptionMessageRegExp /^(mysql_result\(\):)? Unable to jump to row 1 on MySQL result index (.*?)$/
      */
     public function test_mysql_result_invalid_row()
     {
@@ -625,6 +619,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
      */
     public function test_mysql_close_fail()
     {
+        $this->skipForHHVM();
+
         mysql_close();
     }
 
@@ -834,97 +830,97 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 "function" => "mysql_result",
-                "message" => "mysql_result() expects parameter 1 to be resource, null given",
+                "message" => "mysql_result\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [0]
             ],
             [
                 "function" => "mysql_num_rows",
-                "message" => "mysql_num_rows() expects parameter 1 to be resource, null given",
+                "message" => "mysql_num_rows\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [],
             ],
             [
                 "function" => "mysql_num_fields",
-                "message" => "mysql_num_fields() expects parameter 1 to be resource, null given",
+                "message" => "mysql_num_fields\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [],
             ],
             [
                 "function" => "mysql_fetch_row",
-                "message" => "mysql_fetch_row() expects parameter 1 to be resource, null given",
+                "message" => "mysql_fetch_row\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [],
             ],
             [
                 "function" => "mysql_fetch_array",
-                "message" => "mysql_fetch_array() expects parameter 1 to be resource, null given",
+                "message" => "mysql_fetch_array\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [],
             ],
             [
                 "function" => "mysql_fetch_assoc",
-                "message" => "mysql_fetch_assoc() expects parameter 1 to be resource, null given",
+                "message" => "mysql_fetch_assoc\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [],
             ],
             [
                 "function" => "mysql_fetch_object",
-                "message" => "mysql_fetch_object(): supplied argument is not a valid MySQL result resource",
+                "message" => "mysql_fetch_object\(\): supplied argument is not a valid (null|NULL) result resource",
                 "args" => ["StdClass"]
             ],
             [
                 "function" => "mysql_data_seek",
-                "message" => "mysql_data_seek() expects parameter 1 to be resource, null given",
+                "message" => "mysql_data_seek\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [0]
             ],
             [
                 "function" => "mysql_fetch_lengths",
-                "message" => "mysql_fetch_lengths() expects parameter 1 to be resource, null given",
+                "message" => "mysql_fetch_lengths\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => []
             ],
             [
                 "function" => "mysql_fetch_field",
-                "message" => "mysql_fetch_field() expects parameter 1 to be resource, null given",
+                "message" => "mysql_fetch_field\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => []
             ],
             [
                 "function" => "mysql_field_seek",
-                "message" => "mysql_field_seek() expects parameter 1 to be resource, null given",
+                "message" => "mysql_field_seek\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [0]
             ],
             [
                 "function" => "mysql_free_result",
-                "message" => "mysql_free_result() expects parameter 1 to be resource, null given",
+                "message" => "mysql_free_result\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => []
             ],
             [
                 "function" => "mysql_field_name",
-                "message" => "mysql_field_name() expects parameter 1 to be resource, null given",
+                "message" => "mysql_field_name\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [0]
             ],
             [
                 "function" => "mysql_field_table",
-                "message" => "mysql_field_table() expects parameter 1 to be resource, null given",
+                "message" => "mysql_field_table\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [0]
             ],
             [
                 "function" => "mysql_field_len",
-                "message" => "mysql_field_len() expects parameter 1 to be resource, null given",
+                "message" => "mysql_field_len\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [0]
             ],
             [
                 "function" => "mysql_field_type",
-                "message" => "mysql_field_type() expects parameter 1 to be resource, null given",
+                "message" => "mysql_field_type\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [0]
             ],
             [
                 "function" => "mysql_field_flags",
-                "message" => "mysql_field_flags() expects parameter 1 to be resource, null given",
+                "message" => "mysql_field_flags\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [0]
             ],
             [
                 "function" => "mysql_db_name",
-                "message" => "mysql_db_name() expects parameter 1 to be resource, null given",
+                "message" => "mysql_db_name\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [0]
             ],
             [
                 "function" => "mysql_tablename",
-                "message" => "mysql_tablename() expects parameter 1 to be resource, null given",
+                "message" => "mysql_tablename\(\) expects parameter 1 to be resource, (null|NULL) given",
                 "args" => [0]
             ],
         ];
