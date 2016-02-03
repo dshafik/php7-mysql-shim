@@ -17,6 +17,13 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     static $container;
     static $bin = [];
 
+    protected $runtime;
+
+    public function __construct()
+    {
+        $this->runtime = new \SebastianBergmann\Environment\Runtime();
+    }
+
     public function test_mysql_connect()
     {
         $mysql = mysql_connect(static::$host, 'root');
@@ -286,6 +293,9 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @requires PHP
+     */
     public function test_mysql_list_tables_fail()
     {
         $this->skipForHHVM();
@@ -1031,7 +1041,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     protected function skipForHHVM($condition = true)
     {
-        if (defined('HHVM_VERSION') && $condition) {
+        if ($this->runtime->isHHVM() && $condition) {
             $this->markTestSkipped("HHVM Behavior differs from PHP");
         }
     }
