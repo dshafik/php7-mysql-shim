@@ -24,6 +24,19 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @requires PHP 7
+     */
+    public function test_mysql_connect_defaults()
+    {
+        ini_set('mysqli.default_host', '127.0.0.1');
+        ini_set('mysqli.default_user', 'root');
+        ini_set('mysqli.default_pw', '');
+
+        $mysql = mysql_connect();
+        $this->assertConnection($mysql);
+    }
+
+    /**
      * @expectedException \PHPUnit_Framework_Error_Warning
      * @expectedExceptionMessageRegExp /^mysql(i?)_connect\(\): (\(HY000\/1045\): )?Access denied for user 'baduser'@'(.*?)' \(using password: YES\)$/
      */

@@ -20,6 +20,15 @@ namespace {
             if ($new !== false) {
                 trigger_error('Argument $new is no longer supported in PHP > 7', E_USER_WARNING);
             }
+            if (null === $hostname) {
+                $hostname = ini_get('mysqli.default_host') ?: null;
+            }
+            if (null === $username) {
+                $username = ini_get('mysqli.default_user') ?: null;
+            }
+            if (null === $password) {
+                $password = ini_get('mysqli.default_pw') ?: null;
+            }
 
             $hash = sha1($hostname . $username . $flags);
             if ($hostname{1} != ':' && isset(\Dshafik\MySQL::$connections[$hash])) {
