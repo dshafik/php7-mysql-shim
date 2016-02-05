@@ -755,49 +755,42 @@ namespace Dshafik {
 
         protected static function getFieldType($what)
         {
-            switch ($what) {
-                case MYSQLI_TYPE_STRING:
-                case MYSQLI_TYPE_VAR_STRING:
-                case MYSQLI_TYPE_ENUM:
-                case MYSQLI_TYPE_SET:
-                    return "string";
-                case MYSQLI_TYPE_LONG:
-                case MYSQLI_TYPE_TINY:
-                case MYSQLI_TYPE_SHORT:
-                case MYSQLI_TYPE_INT24:
-                case MYSQLI_TYPE_CHAR:
-                case MYSQLI_TYPE_LONGLONG:
-                    return "int";
-                case MYSQLI_TYPE_DECIMAL:
-                case MYSQLI_TYPE_FLOAT:
-                case MYSQLI_TYPE_DOUBLE:
-                case MYSQLI_TYPE_NEWDECIMAL:
-                    return "real";
-                case MYSQLI_TYPE_DATETIME:
-                    return "datetime";
-                case MYSQLI_TYPE_TIMESTAMP:
-                    return "timestamp";
-                case MYSQLI_TYPE_NEWDATE:
-                case MYSQLI_TYPE_DATE:
-                    return "date";
-                case MYSQLI_TYPE_TIME:
-                    return "time";
-                case MYSQLI_TYPE_YEAR:
-                    return "year";
-                case MYSQLI_TYPE_TINY_BLOB:
-                case MYSQLI_TYPE_MEDIUM_BLOB:
-                case MYSQLI_TYPE_LONG_BLOB:
-                case MYSQLI_TYPE_BLOB:
-                    return "blob";
-                case MYSQLI_TYPE_NULL:
-                    return "null";
-                case MYSQLI_TYPE_GEOMETRY:
-                    return "geometry";
-                case MYSQLI_TYPE_INTERVAL:
-                case MYSQLI_TYPE_BIT:
-                default:
-                    return "unknown";
-            }
+            $types = [
+                MYSQLI_TYPE_STRING => 'string',
+                MYSQLI_TYPE_VAR_STRING => 'string',
+                MYSQLI_TYPE_ENUM => 'string',
+                MYSQLI_TYPE_SET => 'string',
+
+                MYSQLI_TYPE_LONG => 'int',
+                MYSQLI_TYPE_TINY => 'int',
+                MYSQLI_TYPE_SHORT => 'int',
+                MYSQLI_TYPE_INT24 => 'int',
+                MYSQLI_TYPE_CHAR => 'int',
+                MYSQLI_TYPE_LONGLONG => 'int',
+
+                MYSQLI_TYPE_DECIMAL => 'real',
+                MYSQLI_TYPE_FLOAT => 'real',
+                MYSQLI_TYPE_DOUBLE => 'real',
+                MYSQLI_TYPE_NEWDECIMAL => 'real',
+
+                MYSQLI_TYPE_TINY_BLOB => 'blob',
+                MYSQLI_TYPE_MEDIUM_BLOB => 'blob',
+                MYSQLI_TYPE_LONG_BLOB => 'blob',
+                MYSQLI_TYPE_BLOB => 'blob',
+
+                MYSQLI_TYPE_NEWDATE => 'date',
+                MYSQLI_TYPE_DATE => 'date',
+                MYSQLI_TYPE_TIME => 'time',
+                MYSQLI_TYPE_YEAR => 'year',
+                MYSQLI_TYPE_DATETIME => 'datetime',
+                MYSQLI_TYPE_TIMESTAMP => 'timestamp',
+
+                MYSQLI_TYPE_NULL => 'null',
+                
+                MYSQLI_TYPE_GEOMETRY => 'geometry',
+            ];
+
+            return isset($types[$what]) ? $types[$what] : "unknown";
         }
     }
 }
