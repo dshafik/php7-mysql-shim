@@ -728,58 +728,29 @@ namespace Dshafik {
         protected static function getFieldFlags($what)
         {
             // Order of flags taken from http://lxr.php.net/xref/PHP_5_6/ext/mysql/php_mysql.c#2507
+            $flags = [
+                MYSQLI_NOT_NULL_FLAG => "not_null",
+                MYSQLI_PRI_KEY_FLAG => "primary_key",
+                MYSQLI_UNIQUE_KEY_FLAG => "unique_key",
+                MYSQLI_MULTIPLE_KEY_FLAG => "multiple_key",
+                MYSQLI_BLOB_FLAG => "blob",
+                MYSQLI_UNSIGNED_FLAG => "unsigned",
+                MYSQLI_ZEROFILL_FLAG => "zerofill",
+                MYSQLI_BINARY_FLAG => "binary",
+                MYSQLI_ENUM_FLAG => "enum",
+                MYSQLI_SET_FLAG => "set",
+                MYSQLI_AUTO_INCREMENT_FLAG => "auto_increment",
+                MYSQLI_TIMESTAMP_FLAG => "timestamp",
+            ];
 
-            $flags = [];
-            if ($what & MYSQLI_NOT_NULL_FLAG) {
-                $flags[] = "not_null";
+            $fieldFlags = [];
+            foreach ($flags as $flag => $value) {
+                if ($what & $flag) {
+                    $fieldFlags[] = $value;
+                }
             }
 
-            if ($what & MYSQLI_PRI_KEY_FLAG) {
-                $flags[] = "primary_key";
-            }
-
-            if ($what & MYSQLI_UNIQUE_KEY_FLAG) {
-                $flags[] = "unique_key";
-            }
-
-            if ($what & MYSQLI_MULTIPLE_KEY_FLAG) {
-                $flags[] = "multiple_key";
-            }
-
-            if ($what & MYSQLI_BLOB_FLAG) {
-                $flags[] = "blob";
-            }
-
-            if ($what & MYSQLI_UNSIGNED_FLAG) {
-                $flags[] = "unsigned";
-            }
-
-            if ($what & MYSQLI_ZEROFILL_FLAG) {
-                $flags[] = "zerofill";
-            }
-
-            if ($what & MYSQLI_BINARY_FLAG) {
-                $flags[] = "binary";
-            }
-
-            if ($what & MYSQLI_ENUM_FLAG) {
-                $flags[] = "enum";
-            }
-
-            if ($what & MYSQLI_SET_FLAG) {
-                $flags[] = "set";
-            }
-
-
-            if ($what & MYSQLI_AUTO_INCREMENT_FLAG) {
-                $flags[] = "auto_increment";
-            }
-
-            if ($what & MYSQLI_TIMESTAMP_FLAG) {
-                $flags[] = "timestamp";
-            }
-
-            return implode(" ", $flags);
+            return implode(" ", $fieldFlags);
         }
 
         protected static function getFieldType($what)
