@@ -19,8 +19,9 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     protected $runtime;
 
-    public function __construct()
+    public function __construct($name = null, array $data = [], $dataName = '')
     {
+        parent::__construct($name, $data, $dataName);
         $this->runtime = new \SebastianBergmann\Environment\Runtime();
     }
 
@@ -334,14 +335,11 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         $this->skipForHHVM();
 
-        try {
-            $this->getConnection();
-            $result = mysql_list_fields("shim_test", "nonexistent");
-        } catch (\PHPUnit_Framework_Error_Warning $e) {
-            $this->assertEquals('mysql_list_fields(): Unable to save MySQL query result', $e->getMessage());
-        }
+        $this->expectException(\PHPUnit_Framework_Error_Warning::class);
+        $this->expectExceptionMessage('mysql_list_fields(): Unable to save MySQL query result');
 
-        $this->assertInstanceOf(\PHPUnit_Framework_Error_Warning::class, $e);
+        $this->getConnection();
+        mysql_list_fields("shim_test", "nonexistent");
     }
 
     public function test_mysql_field()
@@ -510,16 +508,13 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         $this->skipForHHVM($skipHHVM);
 
-        try {
-            if ($args !== []) {
-                $function(null, ...$args);
-            }
-            $function(null);
-        } catch (\PHPUnit_Framework_Error_Warning $e) {
-            $this->assertRegExp('@' . $error . '@', $e->getMessage());
-        }
+        $this->expectException(\PHPUnit_Framework_Error_Warning::class);
+        $this->expectExceptionMessageRegExp('@' . $error . '@');
 
-        $this->assertInstanceOf(\PHPUnit_Framework_Error_Warning::class, $e);
+        if ($args !== []) {
+            $function(null, ...$args);
+        }
+        $function(null);
     }
 
     /**
@@ -544,7 +539,6 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param $function
      * @dataProvider mysql_fetch_no_rows_dataProvider
      */
     public function test_mysql_fetch_no_rows($function)
@@ -656,14 +650,10 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         $this->skipForHHVM();
 
-        try {
-            mysql_close();
-        } catch (\PHPUnit_Framework_Error_Warning $e) {
-            $this->assertEquals("mysql_close(): no MySQL-Link resource supplied", $e->getMessage());
-        }
+        $this->expectException(\PHPUnit_Framework_Error_Warning::class);
+        $this->expectExceptionMessage("mysql_close(): no MySQL-Link resource supplied");
 
-
-        $this->assertInstanceOf(\PHPUnit_Framework_Error_Warning::class, $e);
+        mysql_close();
     }
 
     public function test_mysql_error()
