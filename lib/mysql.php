@@ -695,31 +695,7 @@ namespace Dshafik {
         {
             $escapedString = "";
             for ($i = 0; $i < strlen($unescapedString); $i++) {
-                switch ($unescapedString{$i}) {
-                    case "\0":
-                        $esc = "\\0";
-                        break;
-                    case "\n":
-                        $esc = "\\n";
-                        break;
-                    case "\r":
-                        $esc = "\\r";
-                        break;
-                    case '\\':
-                    case '\'':
-                    case '"':
-                        $esc = "\\{$unescapedString{$i}}";
-                        break;
-                    case "\032":
-                        $esc = "\\Z";
-                        break;
-                    default:
-                        $esc = $unescapedString{$i};
-                        break;
-                }
-
-                $escapedString .= $esc;
-
+                $escapedString .= self::escapeChar($unescapedString{$i});
             }
 
             return $escapedString;
@@ -786,11 +762,39 @@ namespace Dshafik {
                 MYSQLI_TYPE_TIMESTAMP => 'timestamp',
 
                 MYSQLI_TYPE_NULL => 'null',
-                
+
                 MYSQLI_TYPE_GEOMETRY => 'geometry',
             ];
 
             return isset($types[$what]) ? $types[$what] : "unknown";
+        }
+
+        protected static function escapeChar($char)
+        {
+            switch ($char) {
+                case "\0":
+                    $esc = "\\0";
+                    break;
+                case "\n":
+                    $esc = "\\n";
+                    break;
+                case "\r":
+                    $esc = "\\r";
+                    break;
+                case '\\':
+                case '\'':
+                case '"':
+                    $esc = "\\{$char}";
+                    break;
+                case "\032":
+                    $esc = "\\Z";
+                    break;
+                default:
+                    $esc = $char;
+                    break;
+            }
+            
+            return $esc;
         }
     }
 }
