@@ -12,5 +12,5 @@ sudo: false
 before_install:
   - composer self-update
 install: travis_retry composer install --no-interaction --prefer-source
-script: phpunit
+script: php vendor/bin/phpunit
 after_script: if (( `php -r 'echo PHP_MAJOR_VERSION;'` == 7 )); then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover build/coverage/coverage.clover; fi;
