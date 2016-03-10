@@ -146,6 +146,18 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->assertTrue($result, mysql_error());
+
+        $result = mysql_query(
+            "INSERT INTO
+                testing2 (one, two, three, four, five, six, seven, eight, nine, ten, eleven)
+             VALUES
+                ('1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1'),
+                ('2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2'),
+                ('3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3'),
+                ('4', '4', '4', '4', '4', '4', '4', '4', '4', '4', '4')"
+        );
+
+        $this->assertTrue($result, mysql_error());
     }
 
     public function test_mysql_query()
@@ -640,6 +652,20 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         mysql_result($result, 1, 0);
     }
 
+    /**
+     * @see https://github.com/dshafik/php7-mysql-shim/issues/7
+     */
+    public function test_mysql_result_multiple_calls()
+    {
+        $this->getConnection();
+
+        $result = mysql_query("SELECT * FROM testing LIMIT 1");
+        $this->assertResult($result);
+
+        $this->assertEquals(1, mysql_result($result, 0, 'testing.one'));
+        $this->assertEquals(1, mysql_result($result, 0, 'testing.one'));
+    }
+
     public function test_mysql_close()
     {
         mysql_connect(static::$host, 'root');
@@ -987,6 +1013,30 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($result);
         $result = mysql_query(
             "CREATE TABLE IF NOT EXISTS testing (
+                id int AUTO_INCREMENT,
+                one varchar(255),
+                two varchar(255),
+                three varchar(255),
+                four varchar(255),
+                five varchar(255),
+                six varchar(255),
+                seven varchar(255),
+                eight varchar(255),
+                nine ENUM('one', 'two', '\'three'),
+                ten SET('one', 'two', '\'\'three'),
+                eleven MEDIUMTEXT,
+                INDEX one_idx (one),
+                UNIQUE INDEX two_unq (two),
+                INDEX three_four_idx (three, four),
+                UNIQUE INDEX four_five_unq (four, five),
+                INDEX seven_eight_idx (seven, eight),
+                UNIQUE INDEX seven_eight_unq (seven, eight),
+                PRIMARY KEY (id)
+            ) CHARACTER SET latin1;"
+        );
+
+        $result = mysql_query(
+            "CREATE TABLE IF NOT EXISTS testing2 (
                 id int AUTO_INCREMENT,
                 one varchar(255),
                 two varchar(255),

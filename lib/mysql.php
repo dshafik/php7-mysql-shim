@@ -235,6 +235,7 @@ namespace {
                 list($table, $name) =  explode(".", $field);
                 $i = 0;
                 $found = false;
+		        mysqli_field_seek($result, 0);
                 while ($column = mysqli_fetch_field($result)) {
                     if ($column->table == $table && $column->name == $name) {
                         $field = $i;
