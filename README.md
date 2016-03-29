@@ -8,6 +8,12 @@ This library attempts to create a drop-in replacement for ext/mysql on PHP 7 usi
 For the most part, it should _just work_, although you either need to prefix all calls with a `\` (only internal functions will fallback to the global scope)
 or import the functions into every file (e.g. `use function \mysql_connect`).
 
+## Why You Shouldn't Use This Library
+
+This library is meant to be a _stop-gap_. It will be slower than using the native functions directly.
+
+**You should switch to `ext/pdo_mysql` or `ext/mysqli`, and migrate to [prepared queries](http://php.net/manual/en/pdo.prepared-statements.php) to ensure you are securely interacting with your database.**
+
 ## Installation
 
 To install, either add `dshafik/php7-mysql-shim` to your `composer.json`:
@@ -20,13 +26,12 @@ or, clone/download this repo, and include `mysql.php` in your project.
 
 ## Usage
 
-Once the file is included, it will create `mysql_*` function if they don't already exist.
+Once the file is included, it will create `mysql_*` function if they don't already exist. _**You may safely include the file in a PHP 5.x project**_, it will do nothing.
 
 ## Caveats
 
 - Calls to `is_resource()` and `get_resource_type()` on MySQL connections and results will fail as these are now their `mysqli` equivalents.
 - Some errors are now from `ext/mysqli`, and others are `E_USER_WARNING` instead of `E_WARNING`.
 - You must use the `mysqli.*` INI entries instead of `mysql.*` (e.g. `mysqli.default_user` instead of `mysql.default_user`)
+- If no host, username, password parameter is provided when using the `mysql_*` functions, the default values from the corresponding `mysqli.*` settings from `php.ini` file will be use (e.g. `mysqli.default_host`, `mysqli.default_user`, `mysqli.default_pw`)
 - Column lengths reported by `mysql_field_len()` assume `latin1`
-- If no host, username, password parameter is provided when using the `mysql_*` functions, the default values from the corresponding `mysqli.*` settings from `php.ini` file will be used
-(e.g. `mysqli.default_host`, `mysqli.default_user`, `mysqli.default_pw`)
