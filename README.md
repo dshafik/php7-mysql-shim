@@ -5,8 +5,7 @@
 
 This library attempts to create a drop-in replacement for ext/mysql on PHP 7 using mysqli.
 
-For the most part, it should _just work_, although you either need to prefix all calls with a `\` (only internal functions will fallback to the global scope)
-or import the functions into every file (e.g. `use function \mysql_connect`).
+For the most part, it should _just work_.
 
 ## Why You Shouldn't Use This Library
 
