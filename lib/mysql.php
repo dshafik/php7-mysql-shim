@@ -124,7 +124,7 @@ namespace {
 
             return mysqli_query(
                 $link,
-                "USE " . mysqli_real_escape_string($link, $databaseName)
+                "USE `" . mysqli_real_escape_string($link, $databaseName) . "`"
             ) !== false;
         }
 
