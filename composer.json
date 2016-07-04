@@ -9,6 +9,9 @@
             "homepage": "https://daveyshafik.com"
         }
     ],
+    "require": {
+        "ext-mysqli": "*"
+    },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.3",
         "fabpot/php-cs-fixer": "^1.9",
