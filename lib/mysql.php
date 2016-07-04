@@ -124,7 +124,7 @@ namespace {
 
             return mysqli_query(
                 $link,
-                "USE " . mysqli_real_escape_string($link, $databaseName)
+                "USE `" . mysqli_real_escape_string($link, $databaseName) . "`"
             ) !== false;
         }
 
@@ -159,18 +159,24 @@ namespace {
         function mysql_list_tables($databaseName, \mysqli $link = null)
         {
             $link = \Dshafik\MySQL::getConnection($link);
-            return mysql_query("SHOW TABLES FROM " . mysql_real_escape_string($databaseName, $link), $link);
+            $query = sprintf(
+                "SHOW TABLES FROM `%s`",
+                mysql_real_escape_string($databaseName, $link)
+            );
+            return mysql_query($query, $link);
         }
 
         function mysql_list_fields($databaseName, $tableName, \mysqli $link = null)
         {
             $link = \Dshafik\MySQL::getConnection($link);
-            $result = mysql_query(
-                "SHOW COLUMNS FROM " .
-                mysqli_real_escape_string($link, $databaseName) . "." .
-                mysqli_real_escape_string($link, $tableName),
-                $link
+
+            $query = sprintf(
+                "SHOW COLUMNS FROM `%s`.`%s`",
+                mysqli_real_escape_string($link, $databaseName),
+                mysqli_real_escape_string($link, $tableName)
             );
+
+            $result = mysql_query($query, $link);
 
             if ($result instanceof \mysqli_result) {
                 $result->table = $tableName;
