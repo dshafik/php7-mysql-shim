@@ -301,6 +301,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->getConnection();
         $result = mysql_list_tables("mysql");
         $this->assertResult($result);
+
         while ($row = mysql_fetch_assoc($result)) {
             $this->assertArrayHasKey("Tables_in_mysql", $row);
         }
@@ -318,15 +319,38 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($result);
     }
 
+    public function test_mysql_list_tables_specialchars()
+    {
+        $this->getConnection('shim-test');
+
+        $result = mysql_list_tables('shim-test');
+        $this->assertResult($result);
+        $i = 0;
+        while ($row = mysql_fetch_assoc($result)) {
+            $i++;
+            $this->assertArrayHasKey("Tables_in_shim-test", $row);
+        }
+        $this->assertEquals(2, $i);
+    }
+
+    /**
+     * @requires PHP 7.0.0
+     */
     public function test_mysql_list_fields()
     {
         $this->skipForHHVM();
 
-        $this->getConnection();
-        $result = mysql_list_fields("shim_test", "testing");
+        $mysql = $this->getConnection();
+
+        $sql = "SHOW CREATE TABLE testing";
+
+        $result = mysql_list_fields("shim_test", "testing", $mysql);
         $this->assertResult($result);
 
+        $i = 0;
         while ($row = mysql_fetch_assoc($result)) {
+            $i++;
+
             $this->assertEquals(
                 [
                     'Field',
@@ -339,6 +363,65 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                 array_keys($row)
             );
         }
+
+        $this->assertEquals(12, $i);
+
+        return;
+    }
+
+    /**
+     * @requires PHP 7.0.0
+     */
+    public function test_mysql_list_fields_specialchars()
+    {
+        $this->skipForHHVM();
+
+        $this->getConnection('shim-test');
+
+        $result = mysql_query(
+            "CREATE TABLE IF NOT EXISTS `testing-3` (
+                id int AUTO_INCREMENT,
+                one varchar(255),
+                two varchar(255),
+                three varchar(255),
+                four varchar(255),
+                five varchar(255),
+                six varchar(255),
+                seven varchar(255),
+                eight varchar(255),
+                nine ENUM('one', 'two', '\'three'),
+                ten SET('one', 'two', '\'\'three'),
+                eleven MEDIUMTEXT,
+                INDEX one_idx (one),
+                UNIQUE INDEX two_unq (two),
+                INDEX three_four_idx (three, four),
+                UNIQUE INDEX four_five_unq (four, five),
+                INDEX seven_eight_idx (seven, eight),
+                UNIQUE INDEX seven_eight_unq (seven, eight),
+                PRIMARY KEY (id)
+            ) CHARACTER SET latin1;"
+        );
+
+        $result = mysql_list_fields("shim-test", "testing-3");
+        $this->assertResult($result);
+
+        $i = 0;
+        while ($row = mysql_fetch_assoc($result)) {
+            $i++;
+            $this->assertEquals(
+                [
+                    'Field',
+                    'Type',
+                    'Null',
+                    'Key',
+                    'Default',
+                    'Extra'
+                ],
+                array_keys($row)
+            );
+        }
+
+        $this->assertEquals(12, $i);
 
         return;
     }
@@ -728,29 +811,35 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         @mysql_close();
     }
 
+    public function test_mysql_select_db()
+    {
+        $this->getConnection();
+
+        $this->assertTrue(mysql_select_db('shim_test'));
+    }
+
+    public function test_mysql_select_db_specialchars()
+    {
+        $this->getConnection('shim-test');
+
+        $this->assertTrue(mysql_select_db('shim-test'));
+    }
+    
+    public function test_mysql_select_db_invalid()
+    {
+        $this->getConnection();
+        
+        $this->assertFalse(mysql_select_db('nonexistent'));
+    }
+
     public static function setUpBeforeClass()
     {
         error_reporting(E_ALL & ~E_DEPRECATED);
         if (getenv('TRAVIS') === false) {
             fwrite(STDERR, "=> Finding binaries\n");
-            static::$bin['dm'] = $dm = exec('/usr/bin/env which docker-machine');
             static::$bin['docker'] = $docker = exec('/usr/bin/env which docker');
-            if (empty($dm) && empty($docker)) {
+            if (empty($docker)) {
                 static::markTestSkipped('Docker is required to run these tests');
-            }
-
-            if (!empty($dm)) {
-                fwrite(STDERR, "=> Starting Docker Machine\n");
-                passthru($dm . ' create -d virtualbox mysql-shim');
-                passthru($dm . ' start mysql-shim');
-
-                $env = '';
-                exec($dm . ' env mysql-shim', $env);
-                foreach ($env as $line) {
-                    if ($line{0} !== '#') {
-                        putenv(str_replace(["export ", '"'], "", $line));
-                    }
-                }
             }
 
             fwrite(STDERR, "=> Running Docker Container: ");
@@ -765,14 +854,6 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             fwrite(STDERR, "=> Finding MySQL Host: ");
             static::$host = exec($docker . ' port ' . self::$container . ' 3306');
             fwrite(STDERR, static::$host . "\n");
-
-            if (!empty($dm)) {
-                fwrite(STDERR, "=> Using Docker Machine IP: ");
-                $info = explode(':', static::$host);
-                $port = array_pop($info);
-                static::$host = exec($dm . ' ip mysql-shim') . ':' . $port;
-                fwrite(STDERR, static::$host . "\n");
-            }
 
             fwrite(STDERR, "=> Waiting on mysqld to start:");
             $out = '';
@@ -813,6 +894,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
         mysql_connect(static::$host, "root");
         mysql_query("DROP DATABASE IF EXISTS shim_test");
+        mysql_query("DROP DATABASE IF EXISTS `shim-test`");
     }
 
     public function mysql_fetch_DataProvider()
@@ -1000,16 +1082,16 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    protected function getConnection($db = null)
+    protected function getConnection($db = 'shim_test')
     {
         $mysql = mysql_connect(static::$host, 'root');
         $this->assertConnection($mysql);
 
         mysql_query("SET NAMES latin1");
 
-        $result = mysql_query("CREATE DATABASE IF NOT EXISTS shim_test CHARACTER SET latin1;");
+        $result = mysql_query("CREATE DATABASE IF NOT EXISTS `$db` CHARACTER SET latin1;");
         $this->assertTrue($result);
-        $result = mysql_select_db('shim_test');
+        $result = mysql_select_db($db);
         $this->assertTrue($result);
         $result = mysql_query(
             "CREATE TABLE IF NOT EXISTS testing (
