@@ -247,7 +247,7 @@ namespace {
             }
 
             $row = mysql_fetch_array($result);
-            if ($found && isset($row[$field])) {
+            if ($found && array_key_exists($field, $row)) {
                 return $row[$field];
             }
 
