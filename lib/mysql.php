@@ -335,7 +335,7 @@ namespace {
                 // @codeCoverageIgnoreEnd
             }
 
-            if ($class == null) {
+            if ($class === null) {
                 $object = mysqli_fetch_object($result);
             } else {
                 $object = mysqli_fetch_object($result, $class, $params);
@@ -446,7 +446,7 @@ namespace {
 
         function mysql_escape_string($unescapedString)
         {
-            if (\Dshafik\MySQL::$last_connection == null) {
+            if (\Dshafik\MySQL::$last_connection === null) {
                 trigger_error(
                     sprintf(
                         "%s() is insecure; use mysql_real_escape_string() instead!",
