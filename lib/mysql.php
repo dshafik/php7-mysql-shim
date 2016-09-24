@@ -306,14 +306,14 @@ namespace {
             return mysqli_fetch_row($result) ?: false;
         }
 
-        function mysql_fetch_array($result)
+        function mysql_fetch_array($result, $resulttype = MYSQL_BOTH)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
             }
-            return mysqli_fetch_array($result) ?: false;
+            return mysqli_fetch_array($result, $resulttype) ?: false;
         }
 
         function mysql_fetch_assoc($result) /* : array|null */
