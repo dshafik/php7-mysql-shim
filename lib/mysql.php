@@ -313,14 +313,14 @@ namespace {
             return mysqli_fetch_row($result) ?: false;
         }
 
-        function mysql_fetch_array($result)
+        function mysql_fetch_array($result, $resultType = MYSQL_BOTH)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
             }
-            return mysqli_fetch_array($result) ?: false;
+            return mysqli_fetch_array($result, $resultType) ?: false;
         }
 
         function mysql_fetch_assoc($result) /* : array|null */

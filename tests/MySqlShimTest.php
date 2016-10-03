@@ -621,7 +621,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider mysql_fetch_DataProvider
      */
-    public function test_mysql_fetch($function, $results)
+    public function test_mysql_fetch($function, $results, $resultType = null)
     {
         $this->getConnection("shim_test");
 
@@ -631,7 +631,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(sizeof($results), mysql_num_rows($result));
 
         $i = 0;
-        while ($row = $function($result)) {
+        while ($row = $function($result, $resultType)) {
             $this->assertEquals($results[$i], $row);
             $i++;
         }
@@ -936,7 +936,18 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 'function' => 'mysql_fetch_array',
-                'results' => $array
+                'results' => $assoc,
+                'resulttype' => MYSQL_ASSOC
+            ],
+            [
+                'function' => 'mysql_fetch_array',
+                'results' => $array,
+                'resulttype' => MYSQL_BOTH
+            ],
+            [
+                'function' => 'mysql_fetch_array',
+                'results' => $numeric,
+                'resulttype' => MYSQL_NUM
             ],
             [
                 'function' => 'mysql_fetch_assoc',
