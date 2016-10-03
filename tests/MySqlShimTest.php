@@ -32,7 +32,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @requires PHP 7
+     * @requires PHP 7.0.0
      */
     public function test_mysql_connect_defaults()
     {
@@ -630,6 +630,13 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(sizeof($results), mysql_num_rows($result));
 
+        $function = function ($result) use ($function, $resultType) {
+            if ($resultType) {
+                return $function($result, $resultType);
+            }
+            return $function($result);
+        };
+
         $i = 0;
         while ($row = $function($result, $resultType)) {
             $this->assertEquals($results[$i], $row);
@@ -937,17 +944,17 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             [
                 'function' => 'mysql_fetch_array',
                 'results' => $assoc,
-                'resulttype' => MYSQL_ASSOC
+                'resultType' => MYSQL_ASSOC
             ],
             [
                 'function' => 'mysql_fetch_array',
                 'results' => $array,
-                'resulttype' => MYSQL_BOTH
+                'resultType' => MYSQL_BOTH
             ],
             [
                 'function' => 'mysql_fetch_array',
                 'results' => $numeric,
-                'resulttype' => MYSQL_NUM
+                'resultType' => MYSQL_NUM
             ],
             [
                 'function' => 'mysql_fetch_assoc',
