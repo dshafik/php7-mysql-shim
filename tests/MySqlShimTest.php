@@ -48,9 +48,15 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
      * @expectedException \PHPUnit_Framework_Error_Warning
      * @expectedExceptionMessageRegExp /^mysql(i?)_connect\(\): (\(HY000\/1045\): )?Access denied for user 'baduser'@'(.*?)' \(using password: YES\)$/
      */
-    public function test_mysql_connect_fail()
+    public function test_mysql_connect_fail_warning()
     {
         $mysql = mysql_connect(static::$host, "baduser", "badpass");
+    }
+
+    public function test_mysql_connect_fail_false()
+    {
+        $mysql = @mysql_connect(static::$host, "baduser", "badpass");
+        $this->assertFalse($mysql);
     }
 
     /**
