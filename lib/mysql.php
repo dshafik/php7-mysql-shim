@@ -38,7 +38,11 @@ namespace {
             }
 
             if ($flags === 0) {
-                \Dshafik\MySQL::$last_connection = $conn = mysqli_connect($hostname, $username, $password);
+                $conn = mysqli_connect($hostname, $username, $password);
+                if (!$conn instanceof mysqli) {
+                    return false;
+                }
+                \Dshafik\MySQL::$last_connection = $conn;
                 $conn->hash = $hash;
                 \Dshafik\MySQL::$connections[$hash] = ['refcount' => 1, 'conn' => $conn];
 
@@ -800,7 +804,7 @@ namespace Dshafik {
                     $esc = $char;
                     break;
             }
-            
+
             return $esc;
         }
     }
