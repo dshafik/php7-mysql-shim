@@ -930,8 +930,18 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         return [
             [
                 'function' => 'mysql_fetch_array',
+                'results' => $assoc,
+                'resulttype' => MYSQL_ASSOC
+            ],
+            [
+                'function' => 'mysql_fetch_array',
                 'results' => $array,
-                'resulttype' => 3
+                'resulttype' => MYSQL_BOTH
+            ],
+            [
+                'function' => 'mysql_fetch_array',
+                'results' => $numeric,
+                'resulttype' => MYSQL_NUM
             ],
             [
                 'function' => 'mysql_fetch_assoc',
