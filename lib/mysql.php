@@ -31,12 +31,14 @@ namespace {
             }
 
             $hash = sha1($hostname . $username . $flags);
+            /* persistent connections start with p: */
             if ($hostname{1} != ':' && isset(\Dshafik\MySQL::$connections[$hash])) {
                 \Dshafik\MySQL::$last_connection = \Dshafik\MySQL::$connections[$hash]['conn'];
                 \Dshafik\MySQL::$connections[$hash]['refcount'] += 1;
                 return \Dshafik\MySQL::$connections[$hash]['conn'];
             }
 
+            /* No flags, means we can use mysqli_connect() */
             if ($flags === 0) {
                 $conn = mysqli_connect($hostname, $username, $password);
                 if (!$conn instanceof mysqli) {
@@ -49,6 +51,7 @@ namespace {
                 return $conn;
             }
 
+            /* Flags means we need to use mysqli_real_connect() instead, and handle exceptions */
             try {
                 \Dshafik\MySQL::$last_connection = $conn = mysqli_init();
 
