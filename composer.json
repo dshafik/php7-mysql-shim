@@ -1,6 +1,6 @@
 {
     "name": "bbrala/php7-mysql-shim",
-    "description": "A PHP 7 shim for ext/mysql",
+    "description": "A PHP 7 shim for ext/mysql. Temporary which doesn't break old PHP's",
     "license": "MIT",
     "authors": [
         {
