@@ -1,5 +1,5 @@
 {
-    "name": "dshafik/php7-mysql-shim",
+    "name": "bbrala/php7-mysql-shim",
     "description": "A PHP 7 shim for ext/mysql",
     "license": "MIT",
     "authors": [
