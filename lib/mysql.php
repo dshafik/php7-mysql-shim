@@ -46,7 +46,7 @@ namespace {
                 }
                 \Dshafik\MySQL::$last_connection = $conn;
                 $conn->hash = $hash;
-                \Dshafik\MySQL::$connections[$hash] = ['refcount' => 1, 'conn' => $conn];
+                \Dshafik\MySQL::$connections[$hash] = array('refcount' => 1, 'conn' => $conn);
 
                 return $conn;
             }
@@ -74,7 +74,7 @@ namespace {
                 // @codeCoverageIgnoreEnd
 
                 $conn->hash = $hash;
-                \Dshafik\MySQL::$connections[$hash] = ['refcount' => 1, 'conn' => $conn];
+                \Dshafik\MySQL::$connections[$hash] = array('refcount' => 1, 'conn' => $conn);
 
                 return $conn;
             } catch (\Throwable $e) {
@@ -334,7 +334,7 @@ namespace {
             return mysqli_fetch_assoc($result) ?: false;
         }
 
-        function mysql_fetch_object($result, $class = null, array $params = []) /* : object|null */
+        function mysql_fetch_object($result, $class = null, array $params = array()) /* : object|null */
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
@@ -522,7 +522,7 @@ namespace {
             return mysqli_set_charset(\Dshafik\MySQL::getConnection($link), $charset);
         }
 
-        function mysql_db_name($result, $row)
+        function mysql_db_name($result, $row, $field = NULL)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
@@ -548,74 +548,74 @@ namespace {
 
         /* Aliases */
 
-        function mysql_fieldname(... $args)
+        function mysql_fieldname($result, $field)
         {
-            return mysql_field_name(... $args);
+            return mysql_field_name($result, $field);
         }
 
-        function mysql_fieldtable(... $args)
+        function mysql_fieldtable($result, $field)
         {
-            return mysql_field_table(... $args);
+            return mysql_field_table($result, $field);
         }
 
-        function mysql_fieldlen(... $args)
+        function mysql_fieldlen($result, $field)
         {
-            return mysql_field_len(... $args);
+            return mysql_field_len($result, $field);
         }
 
-        function mysql_fieldtype(... $args)
+        function mysql_fieldtype($result, $field)
         {
-            return mysql_field_type(... $args);
+            return mysql_field_type($result, $field);
         }
 
-        function mysql_fieldflags(... $args)
+        function mysql_fieldflags($result, $field)
         {
-            return mysql_field_flags(... $args);
+            return mysql_field_flags($result, $field);
         }
 
-        function mysql_selectdb(... $args)
+        function mysql_selectdb($database_name, $link_identifier = NULL)
         {
-            return mysql_select_db(... $args);
+            return mysql_select_db($database_name, $link_identifier);
         }
 
-        function mysql_freeresult(... $args)
+        function mysql_freeresult($result)
         {
-            return mysql_free_result(... $args);
+            return mysql_free_result($result);
         }
 
-        function mysql_numfields(... $args)
+        function mysql_numfields($result)
         {
-            return mysql_num_fields(... $args);
+            return mysql_num_fields($result);
         }
 
-        function mysql_numrows(... $args)
+        function mysql_numrows($result)
         {
-            return mysql_num_rows(... $args);
+            return mysql_num_rows($result);
         }
 
-        function mysql_listdbs(... $args)
+        function mysql_listdbs($link_identifier = NULL)
         {
-            return mysql_list_dbs(... $args);
+            return mysql_list_dbs($link_identifier);
         }
 
-        function mysql_listtables(... $args)
+        function mysql_listtables($database_name, $link_identifier = NULL)
         {
-            return mysql_list_tables(... $args);
+            return mysql_list_tables($database_name, $link_identifier);
         }
 
-        function mysql_listfields(... $args)
+        function mysql_listfields($database_name, $table_name, $link_identifier = NULL)
         {
-            return mysql_list_fields(... $args);
+            return mysql_list_fields($database_name, $table_name, $link_identifier);
         }
 
-        function mysql_dbname(... $args)
+        function mysql_dbname($result, $row, $field = NULL)
         {
-            return mysql_db_name(... $args);
+            return mysql_db_name($result, $row, $field);
         }
 
-        function mysql_table_name(... $args)
+        function mysql_table_name($result, $i)
         {
-            return mysql_tablename(... $args);
+            return mysql_tablename($result, $i);
         }
     }
 }
@@ -625,7 +625,7 @@ namespace Dshafik {
     class MySQL
     {
         public static $last_connection = null;
-        public static $connections = [];
+        public static $connections = array();
 
         public static function getConnection($link = null, $func = null)
         {
@@ -718,7 +718,7 @@ namespace Dshafik {
         protected static function getFieldFlags($what)
         {
             // Order of flags taken from http://lxr.php.net/xref/PHP_5_6/ext/mysql/php_mysql.c#2507
-            $flags = [
+            $flags = array(
                 MYSQLI_NOT_NULL_FLAG => "not_null",
                 MYSQLI_PRI_KEY_FLAG => "primary_key",
                 MYSQLI_UNIQUE_KEY_FLAG => "unique_key",
@@ -731,9 +731,9 @@ namespace Dshafik {
                 MYSQLI_SET_FLAG => "set",
                 MYSQLI_AUTO_INCREMENT_FLAG => "auto_increment",
                 MYSQLI_TIMESTAMP_FLAG => "timestamp",
-            ];
+            );
 
-            $fieldFlags = [];
+            $fieldFlags = array();
             foreach ($flags as $flag => $value) {
                 if ($what & $flag) {
                     $fieldFlags[] = $value;
@@ -745,7 +745,7 @@ namespace Dshafik {
 
         protected static function getFieldType($what)
         {
-            $types = [
+            $types = array(
                 MYSQLI_TYPE_STRING => 'string',
                 MYSQLI_TYPE_VAR_STRING => 'string',
                 MYSQLI_TYPE_ENUM => 'string',
@@ -778,7 +778,7 @@ namespace Dshafik {
                 MYSQLI_TYPE_NULL => 'null',
 
                 MYSQLI_TYPE_GEOMETRY => 'geometry',
-            ];
+            );
 
             return isset($types[$what]) ? $types[$what] : "unknown";
         }
