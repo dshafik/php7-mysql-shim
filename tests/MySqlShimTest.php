@@ -2,13 +2,11 @@
 /**
  * php7-mysql-shim
  *
- * @author Davey Shafik <dshafik@akamai.com>
- * @copyright Copyright 2015 Akamai Technologies, Inc. All rights reserved.
- * @license Apache 2.0
- * @link https://github.com/akamai-open/php7-mysql-shim
- * @link https://developer.akamai.com
+ * @author Davey Shafik <me@daveyshafik.com>
+ * @copyright Copyright (c) 2017 Davey Shafik
+ * @license MIT License
+ * @link https://github.com/dshafik/php7-mysql-shim
  */
-
 namespace Dshafik\MySQL\Tests;
 
 class MySqlShimTest extends \PHPUnit_Framework_TestCase

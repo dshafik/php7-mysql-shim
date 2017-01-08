@@ -1,4 +1,17 @@
 <?php
+/**
+ * php7-mysql-shim
+ *
+ * @author Davey Shafik <me@daveyshafik.com>
+ * @copyright Copyright (c) 2017 Davey Shafik
+ * @license MIT License
+ * @link https://github.com/dshafik/php7-mysql-shim
+ */
+
+/**
+ * A drop-in replacement for ext/mysql in PHP 7+
+ * using ext/mysqli instead
+ */
 namespace {
 
     if (!function_exists('\mysql_connect')) {
