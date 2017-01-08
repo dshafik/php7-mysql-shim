@@ -10,16 +10,20 @@
         }
     ],
     "require": {
-        "php": ">=5.3",
+        "php": ">=5.3.6",
         "ext-mysqli": "*"
     },
     "require-dev": {
-        "php": ">=5.6",
         "squizlabs/php_codesniffer": "^2.3",
-        "friendsofphp/php-cs-fixer": "^1.9",
-        "phpunit/phpunit": "^5.2"
+        "friendsofphp/php-cs-fixer": "^1.9|^2.0",
+        "phpunit/phpunit": "^4.8|^5.2"
     },
     "autoload": {
         "files": ["lib/mysql.php"]
+    },
+    "config": {
+        "platform": {
+             "php": "5.3.6"
+        }
     }
 }

@@ -24,14 +24,14 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     /**
      * @var array Location of binaries
      */
-    static protected $bin = [];
+    static protected $bin = array();
 
     /**
      * @var \SebastianBergmann\Environment\Runtime
      */
     protected $runtime;
 
-    public function __construct($name = null, array $data = [], $dataName = '')
+    public function __construct($name = null, array $data = array(), $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
         $this->runtime = new \SebastianBergmann\Environment\Runtime();
@@ -277,10 +277,12 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->getConnection();
         $result = mysql_db_query("shim_test", "SELECT DATABASE()");
         $this->assertResult($result);
-        $this->assertEquals("shim_test", mysql_fetch_row($result)[0]);
+        $rows =  mysql_fetch_row($result);
+        $this->assertEquals("shim_test", $rows[0]);
         $result = mysql_db_query("mysql", "SELECT DATABASE()");
         $this->assertResult($result);
-        $this->assertEquals("mysql", mysql_fetch_row($result)[0]);
+        $rows = mysql_fetch_row($result);
+        $this->assertEquals("mysql", $rows[0]);
     }
 
     public function test_mysql_db_query_fail()
@@ -370,14 +372,14 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             $i++;
 
             $this->assertEquals(
-                [
+                array(
                     'Field',
                     'Type',
                     'Null',
                     'Key',
                     'Default',
                     'Extra'
-                ],
+                ),
                 array_keys($row)
             );
         }
@@ -427,14 +429,14 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         while ($row = mysql_fetch_assoc($result)) {
             $i++;
             $this->assertEquals(
-                [
+                array(
                     'Field',
                     'Type',
                     'Null',
                     'Key',
                     'Default',
                     'Extra'
-                ],
+                ),
                 array_keys($row)
             );
         }
@@ -448,11 +450,13 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         $this->skipForHHVM();
 
-        $this->expectException(\PHPUnit_Framework_Error_Warning::class);
-        $this->expectExceptionMessage('mysql_list_fields(): Unable to save MySQL query result');
-
-        $this->getConnection();
-        mysql_list_fields("shim_test", "nonexistent");
+        try {
+            $this->getConnection();
+            mysql_list_fields("shim_test", "nonexistent");
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('\PHPUnit_Framework_Error_Warning', $e);
+            $this->assertEquals('mysql_list_fields(): Unable to save MySQL query result', $e->getMessage());
+        }
     }
 
     public function test_mysql_field()
@@ -621,13 +625,16 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         $this->skipForHHVM($skipHHVM);
 
-        $this->expectException(\PHPUnit_Framework_Error_Warning::class);
-        $this->expectExceptionMessageRegExp('@' . $error . '@');
-
-        if ($args !== []) {
-            $function(null, ...$args);
+        try {
+            if ($args !== array()) {
+                array_unshift($args, null);
+                call_user_func_array($function, $args);
+            }
+            call_user_func($function, null);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('\PHPUnit_Framework_Error_Warning', $e);
+            $this->assertRegExp('@' . $error . '@', $e->getMessage());
         }
-        $function(null);
     }
 
     /**
@@ -784,10 +791,12 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         $this->skipForHHVM();
 
-        $this->expectException(\PHPUnit_Framework_Error_Warning::class);
-        $this->expectExceptionMessage("mysql_close(): no MySQL-Link resource supplied");
-
-        mysql_close();
+        try {
+            mysql_close();
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('\PHPUnit_Framework_Error_Warning', $e);
+            $this->assertEquals("mysql_close(): no MySQL-Link resource supplied", $e->getMessage());
+        }
     }
 
     public function test_mysql_error()
@@ -894,7 +903,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         }
 
 
-        static::$host = 'localhost';
+        static::$host = '0.0.0.0';
     }
 
     public static function tearDownAfterClass()
@@ -924,186 +933,186 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function mysql_fetch_DataProvider()
     {
-        $numeric = [
-            ['1', '1'],
-            ['2', '2'],
-            ['3', '3'],
-            ['4', '4'],
-        ];
+        $numeric = array(
+            array('1', '1'),
+            array('2', '2'),
+            array('3', '3'),
+            array('4', '4'),
+        );
 
-        $assoc = [
-            ['one' => '1', 'two' => '1'],
-            ['one' => '2', 'two' => '2'],
-            ['one' => '3', 'two' => '3'],
-            ['one' => '4', 'two' => '4'],
-        ];
+        $assoc = array(
+            array('one' => '1', 'two' => '1'),
+            array('one' => '2', 'two' => '2'),
+            array('one' => '3', 'two' => '3'),
+            array('one' => '4', 'two' => '4'),
+        );
 
-        $array = [
-            ['1', '1', 'one' => '1', 'two' => '1'],
-            ['2', '2', 'one' => '2', 'two' => '2'],
-            ['3', '3', 'one' => '3', 'two' => '3'],
-            ['4', '4', 'one' => '4', 'two' => '4'],
-        ];
+        $array = array(
+            array('1', '1', 'one' => '1', 'two' => '1'),
+            array('2', '2', 'one' => '2', 'two' => '2'),
+            array('3', '3', 'one' => '3', 'two' => '3'),
+            array('4', '4', 'one' => '4', 'two' => '4'),
+        );
 
-        $object = [
-            (object) ['one' => '1', 'two' => '1'],
-            (object) ['one' => '2', 'two' => '2'],
-            (object) ['one' => '3', 'two' => '3'],
-            (object) ['one' => '4', 'two' => '4'],
-        ];
+        $object = array(
+            (object) array('one' => '1', 'two' => '1'),
+            (object) array('one' => '2', 'two' => '2'),
+            (object) array('one' => '3', 'two' => '3'),
+            (object) array('one' => '4', 'two' => '4'),
+        );
 
-        return [
-            [
+        return array(
+            array(
                 'function' => 'mysql_fetch_array',
                 'results' => $assoc,
                 'resultType' => MYSQL_ASSOC
-            ],
-            [
+            ),
+            array(
                 'function' => 'mysql_fetch_array',
                 'results' => $array,
                 'resultType' => MYSQL_BOTH
-            ],
-            [
+            ),
+            array(
                 'function' => 'mysql_fetch_array',
                 'results' => $numeric,
                 'resultType' => MYSQL_NUM
-            ],
-            [
+            ),
+            array(
                 'function' => 'mysql_fetch_assoc',
                 'results' => $assoc
-            ],
-            [
+            ),
+            array(
                 'function' => 'mysql_fetch_row',
                 'results' => $numeric
-            ],
-            [
+            ),
+            array(
                 'function' => 'mysql_fetch_object',
                 'results' => $object,
-            ]
-        ];
+            )
+        );
     }
 
     public function mysql_fetch_no_rows_dataProvider()
     {
-        return [
-            [
+        return array(
+            array(
                 'function' => 'mysql_fetch_array',
-            ],
-            [
+            ),
+            array(
                 'function' => 'mysql_fetch_assoc',
-            ],
-            [
+            ),
+            array(
                 'function' => 'mysql_fetch_row',
-            ],
-            [
+            ),
+            array(
                 'function' => 'mysql_fetch_object',
-            ],
-        ];
+            ),
+        );
     }
 
     public function mysql_function_invalid_result_DataProvider()
     {
-        return [
-            [
+        return array(
+            array(
                 "function" => "mysql_result",
                 "message" => "mysql_result\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [0]
-            ],
-            [
+                "args" => array(0)
+            ),
+            array(
                 "function" => "mysql_num_rows",
                 "message" => "mysql_num_rows\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [],
-            ],
-            [
+                "args" => array(),
+            ),
+            array(
                 "function" => "mysql_num_fields",
                 "message" => "mysql_num_fields\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [],
-            ],
-            [
+                "args" => array(),
+            ),
+            array(
                 "function" => "mysql_fetch_row",
                 "message" => "mysql_fetch_row\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [],
+                "args" => array(),
                 "skipHHVM" => true
-            ],
-            [
+            ),
+            array(
                 "function" => "mysql_fetch_array",
                 "message" => "mysql_fetch_array\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [],
-            ],
-            [
+                "args" => array(),
+            ),
+            array(
                 "function" => "mysql_fetch_assoc",
                 "message" => "mysql_fetch_assoc\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [],
+                "args" => array(),
                 "skipHHVM" => true
-            ],
-            [
+            ),
+            array(
                 "function" => "mysql_fetch_object",
                 "message" => "(mysql_fetch_object\(\): )?supplied argument is not a valid MySQL result resource",
-                "args" => ["StdClass"]
-            ],
-            [
+                "args" => array("StdClass")
+            ),
+            array(
                 "function" => "mysql_data_seek",
                 "message" => "mysql_data_seek\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [0]
-            ],
-            [
+                "args" => array(0)
+            ),
+            array(
                 "function" => "mysql_fetch_lengths",
                 "message" => "mysql_fetch_lengths\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => []
-            ],
-            [
+                "args" => array()
+            ),
+            array(
                 "function" => "mysql_fetch_field",
                 "message" => "mysql_fetch_field\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => []
-            ],
-            [
+                "args" => array()
+            ),
+            array(
                 "function" => "mysql_field_seek",
                 "message" => "mysql_field_seek\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [0]
-            ],
-            [
+                "args" => array(0)
+            ),
+            array(
                 "function" => "mysql_free_result",
                 "message" => "mysql_free_result\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => []
-            ],
-            [
+                "args" => array()
+            ),
+            array(
                 "function" => "mysql_field_name",
                 "message" => "mysql_field_name\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [0]
-            ],
-            [
+                "args" => array(0)
+            ),
+            array(
                 "function" => "mysql_field_table",
                 "message" => "mysql_field_table\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [0]
-            ],
-            [
+                "args" => array(0)
+            ),
+            array(
                 "function" => "mysql_field_len",
                 "message" => "mysql_field_len\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [0]
-            ],
-            [
+                "args" => array(0)
+            ),
+            array(
                 "function" => "mysql_field_type",
                 "message" => "mysql_field_type\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [0]
-            ],
-            [
+                "args" => array(0)
+            ),
+            array(
                 "function" => "mysql_field_flags",
                 "message" => "mysql_field_flags\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [0]
-            ],
-            [
+                "args" => array(0)
+            ),
+            array(
                 "function" => "mysql_db_name",
                 "message" => "mysql_db_name\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [0],
+                "args" => array(0),
                 "skipHHVM" => true
-            ],
-            [
+            ),
+            array(
                 "function" => "mysql_tablename",
                 "message" => "mysql_tablename\(\) expects parameter 1 to be resource, (null|NULL) given",
-                "args" => [0],
+                "args" => array(0),
                 "skipHHVM" => true
-            ],
-        ];
+            ),
+        );
     }
 
     /**
