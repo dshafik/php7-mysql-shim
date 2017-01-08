@@ -1,4 +1,11 @@
 <?php
+/**
+  * php7 mysql shim
+  * This library attempts to create a drop-in replacement for ext/mysql on PHP 7 using mysqli.
+  * Github: https://github.com/dshafik/php7-mysql-shim
+  * MIT License, Copyright (c) 2016 Davey Shafik, @see LICENSE file for details.
+  */
+
 namespace {
 
     if (!function_exists('\mysql_connect')) {
