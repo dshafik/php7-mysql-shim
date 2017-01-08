@@ -11,10 +11,24 @@ namespace Dshafik\MySQL\Tests;
 
 class MySqlShimTest extends \PHPUnit_Framework_TestCase
 {
-    static $host;
-    static $container;
-    static $bin = [];
+    /**
+     * @var string MySQL Host
+     */
+    static protected $host;
 
+    /**
+     * @var string Docker container
+     */
+    static protected $container;
+
+    /**
+     * @var array Location of binaries
+     */
+    static protected $bin = [];
+
+    /**
+     * @var \SebastianBergmann\Environment\Runtime
+     */
     protected $runtime;
 
     public function __construct($name = null, array $data = [], $dataName = '')
