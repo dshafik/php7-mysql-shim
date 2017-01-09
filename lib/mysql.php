@@ -9,8 +9,14 @@
  */
 
 /**
- * A drop-in replacement for ext/mysql in PHP 7+
- * using ext/mysqli instead
+ * A drop-in replacement for ext/mysql in PHP 7+ using ext/mysqli instead
+ *
+ * This library is meant to be a _stop-gap_. It will be slower than using
+ * the native functions directly.
+ *
+ * You should switch to ext/pdo_mysql or ext/mysqli, and migrate to prepared
+ * queries (@see http://php.net/manual/en/pdo.prepared-statements.php) to
+ * ensure you are securely interacting with your database.
  */
 namespace {
 
