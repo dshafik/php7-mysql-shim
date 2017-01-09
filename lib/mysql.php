@@ -535,7 +535,7 @@ namespace {
             return mysqli_set_charset(\Dshafik\MySQL::getConnection($link), $charset);
         }
 
-        function mysql_db_name($result, $row)
+        function mysql_db_name($result, $row, $field = 0)
         {
             if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
@@ -543,8 +543,8 @@ namespace {
                 // @codeCoverageIgnoreEnd
             }
 
-            // Alias as per http://lxr.php.net/xref/PHP_5_6/ext/mysql/php_mysql.c#319
-            return mysql_result($result, $row, 'Database');
+            // Alias as per https://github.com/php/php-src/blob/PHP-5.6/ext/mysql/php_mysql.c#L319
+            return mysql_result($result, $row, $field);
         }
 
         function mysql_tablename($result, $row)
@@ -621,9 +621,9 @@ namespace {
             return mysql_list_fields($databaseName, $tableName, $link);
         }
 
-        function mysql_dbname($result, $row)
+        function mysql_dbname($result, $row, $field = 0)
         {
-            return mysql_db_name($result, $row);
+            return mysql_db_name($result, $row, $field);
         }
 
         function mysql_table_name($result, $row)

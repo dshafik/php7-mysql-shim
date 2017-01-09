@@ -840,11 +840,6 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         mysql_escape_string("'\0\032\r\n\"\\");
     }
 
-    public function tearDown()
-    {
-        @mysql_close();
-    }
-
     public function test_mysql_select_db()
     {
         $this->getConnection();
@@ -864,6 +859,18 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->getConnection();
         
         $this->assertFalse(mysql_select_db('nonexistent'));
+    }
+
+    public function test_mysql_db_name()
+    {
+        $conn = $this->getConnection();
+        $dbs = mysql_list_dbs();
+        $this->assertEquals('information_schema', mysql_db_name($dbs, 0));
+    }
+
+    public function tearDown()
+    {
+        @mysql_close();
     }
 
     public static function setUpBeforeClass()
