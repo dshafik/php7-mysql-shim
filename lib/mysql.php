@@ -14,7 +14,7 @@
  */
 namespace {
 
-    if (!function_exists('\mysql_connect')) {
+    if (!extension_loaded('mysql')) {
         define ('MYSQL_ASSOC', 1);
         define ('MYSQL_NUM', 2);
         define ('MYSQL_BOTH', 3);
