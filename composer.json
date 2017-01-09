@@ -20,10 +20,5 @@
     },
     "autoload": {
         "files": ["lib/mysql.php"]
-    },
-    "config": {
-        "platform": {
-             "php": "5.3.6"
-        }
     }
 }
