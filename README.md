@@ -26,7 +26,7 @@ or, clone/download this repo, and include `mysql.php` in your project.
 
 ## Usage
 
-Once the file is included, it will create `mysql_*` function if they don't already exist. _**You may safely include the file in a PHP 5.6 project**_, it will do nothing.
+Once the file is included, it will create `mysql_*` functions if they don't already exist. _**You may safely include the file in a PHP 5.3.6+ project**_, it will do nothing if the mysql extension is already available.
 
 ## Caveats
 
