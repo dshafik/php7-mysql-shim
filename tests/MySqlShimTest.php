@@ -16,6 +16,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
      */
     static protected $host;
 
+    static protected $password = null;
+
     /**
      * @var string Docker container
      */
@@ -44,7 +46,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_connect()
     {
-        $mysql = mysql_connect(static::$host, 'root');
+        $mysql = mysql_connect(static::$host, 'root', static::$password);
         $this->assertConnection($mysql);
     }
 
@@ -55,7 +57,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         ini_set('mysqli.default_host', '127.0.0.1');
         ini_set('mysqli.default_user', 'root');
-        ini_set('mysqli.default_pw', '');
+        ini_set('mysqli.default_pw', (static::$password === null) ? '' : static::$password);
 
         $mysql = mysql_connect();
         $this->assertConnection($mysql);
@@ -83,12 +85,12 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
      */
     public function test_mysql_connect_new()
     {
-        mysql_connect(static::$host, 'root', null, true);
+        mysql_connect(static::$host, 'root', static::$password, true);
     }
 
     public function test_mysql_connect_options()
     {
-        $mysql = mysql_connect(static::$host, 'root', null, false, MYSQL_CLIENT_COMPRESS);
+        $mysql = mysql_connect(static::$host, 'root', static::$password, false, MYSQL_CLIENT_COMPRESS);
         $this->assertConnection($mysql);
     }
 
@@ -105,8 +107,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         $this->skipForHHVM();
 
-        $conn = mysql_connect(static::$host, 'root');
-        $conn2 = mysql_connect(static::$host, 'root');
+        $conn = mysql_connect(static::$host, 'root', static::$password);
+        $conn2 = mysql_connect(static::$host, 'root', static::$password);
 
         $this->assertEquals($conn, $conn2);
 
@@ -123,7 +125,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_pconnect()
     {
-        $conn = mysql_pconnect(static::$host, 'root');
+        $conn = mysql_pconnect(static::$host, 'root', static::$password);
 
         $result = mysql_query("SELECT 'persistent'", $conn);
         $row = mysql_fetch_row($result);
@@ -150,7 +152,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_query_ddl()
     {
-        mysql_connect(static::$host, 'root');
+        mysql_connect(static::$host, 'root', static::$password);
         $result = mysql_query('CREATE DATABASE IF NOT EXISTS shim_test');
         $this->assertTrue($result, mysql_error());
     }
@@ -860,7 +862,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_close()
     {
-        mysql_connect(static::$host, 'root');
+        mysql_connect(static::$host, 'root', static::$password);
         $this->assertTrue(mysql_close());
     }
 
@@ -953,7 +955,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         error_reporting(E_ALL & ~E_DEPRECATED);
-        if (getenv('TRAVIS') === false) {
+        if (getenv('TRAVIS') === false && getenv('APPVEYOR') === false) {
             fwrite(STDERR, "=> Finding binaries\n");
             static::$bin['docker'] = $docker = exec('/usr/bin/env which docker');
             if (empty($docker)) {
@@ -988,11 +990,15 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
 
         static::$host = '0.0.0.0';
+        if (getenv('APPVEYOR') !== false) {
+            static::$host = '127.0.0.1';
+            static::$password = 'Password12!';
+        }
     }
 
     public static function tearDownAfterClass()
     {
-        if (getenv('TRAVIS') === false) {
+        if (getenv('TRAVIS') === false && getenv('APPVEYOR') === false) {
             fwrite(STDERR, "\n\nStopping Docker Container: ");
             $output = exec(static::$bin['docker'] . ' stop ' . static::$container);
             if (trim($output) !== static::$container) {
@@ -1010,7 +1016,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        mysql_connect(static::$host, 'root');
+        mysql_connect(static::$host, 'root', static::$password);
         foreach (self::$dbs as $db) {
             mysql_query("DROP DATABASE IF EXISTS `$db`");
         }
@@ -1216,7 +1222,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         self::$dbs[$db] = $db;
 
-        $mysql = mysql_connect(static::$host, 'root');
+        $mysql = mysql_connect(static::$host, 'root', static::$password);
         $this->assertConnection($mysql);
 
         mysql_query('SET NAMES ' . $encoding);
