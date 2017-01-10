@@ -447,7 +447,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
-            return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'len');
+            return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'length');
         }
 
         function mysql_field_type($result, $field)
@@ -672,7 +672,7 @@ namespace Dshafik {
                 trigger_error(
                     sprintf(
                         'mysql_field_%s(): Field %d is invalid for MySQL result index %s',
-                        $what,
+                        ($what !== 'length') ? $what : 'len',
                         $field,
                         spl_object_hash($result)
                     ),
@@ -684,20 +684,16 @@ namespace Dshafik {
                 // @codeCoverageIgnoreEnd
             }
 
-            if ($what === 'name' || $what === 'table') {
-                return $field->{$what};
-            }
-
-            if ($what === 'len') {
-                return $field->length;
-            }
-
             if ($what === 'type') {
                 return static::getFieldType($field->type);
             }
 
             if ($what === 'flags') {
                 return static::getFieldFlags($field->flags);
+            }
+
+            if (isset($field->{$what})) {
+                return $field->{$what};
             }
 
             return false;
