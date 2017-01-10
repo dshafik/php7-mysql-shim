@@ -10,13 +10,88 @@ php:
   - 7.1
   - nightly
   - hhvm
+env:
+  # composer install (uses lock file)
+  #
+  # The lock file is only used by developers of the library and ensures
+  # a sane dev environment.
+  #
+  # Everything below local dev PHP version _or_ platform req expected to fail
+  # HHVM expected to fail for some platform reqs
+  - DEPS='lock'
+  # composer update --prefer-lowest
+  #
+  # Ensures that the lowest possible versions will work
+  #
+  # HHVM may fail here if older versions required HHVM specific changes
+  # to be compatible
+  - DEPS='low'
+  # composer update
+  #
+  # This uses the latest possible dependencies for the given PHP version.
+  #
+  # If a platform requirement is set, this may not be actual latest versions
+  # and they may be incompatible with newer PHP versions if the PHP requirement is
+  # lax (e.g. >=5.3.6 and a platform of 5.3.6 running on 7.0 which doesn't include
+  # necessary bug fixes for 7.0)
+  - DEPS='high'
+  # composer update --minimum-stability=dev
+  - DEPS='dev'
 matrix:
+  fast_finish: true
   allow_failures:
+    # HHVM may fail in all configurations
     - php: hhvm
+      env: DEPS='lock'
+    - php: hhvm
+      env: DEPS='low'
+    - php: hhvm
+      env: DEPS='high'
+    - php: hhvm
+      env: DEPS='dev'
+    # PHP nightly may fail in all configuration
     - php: nightly
+      env: DEPS='lock'
+    - php: nightly
+      env: DEPS='low'
+    - php: nightly
+      env: DEPS='high'
+    - php: nightly
+      env: DEPS='dev'
+    # PHP < dev version may fail with composer.lock
+    # Currently running PHP 7.1
+    - php: 5.3
+      env: DEPS='lock'
+    - php: 5.4
+      env: DEPS='lock'
+    - php: 5.5
+      env: DEPS='lock'
+    - php: 5.6
+      env: DEPS='lock'
+    - php: 7.0
+      env: DEPS='lock'
+    # Everything may fail with --minimum-stability=dev
+    - php: 5.3
+      env: DEPS='dev'
+    - php: 5.4
+      env: DEPS='dev'
+    - php: 5.5
+      env: DEPS='dev'
+    - php: 5.6
+      env: DEPS='dev'
+    - php: 7.0
+      env: DEPS='dev'
+    - php: 7.1
+      env: DEPS='dev'
+    # Everything except HHVM/nightly should pass with update
+
 sudo: false
 before_install:
   - composer self-update
-install: travis_retry composer update --no-interaction --prefer-source
+install:
+  - if [ "$DEPS" == "lock" ]; then travis_retry composer install --no-interaction --prefer-source; fi;
+  - if [ "$DEPS" == "dev" ];  then travis_retry composer update --minimum-stability=dev --no-interaction --prefer-source; fi;
+  - if [ "$DEPS" == "low" ];  then travis_retry composer update --prefer-lowest --no-interaction --prefer-source; fi;
+  - if [ "$DEPS" == "high" ];  then travis_retry composer update --no-interaction --prefer-source; fi;
 script: php vendor/bin/phpunit
 after_script: if (( `php -r 'echo PHP_MAJOR_VERSION;'` == 7 )); then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover build/coverage/coverage.clover; fi;
