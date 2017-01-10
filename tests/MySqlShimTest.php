@@ -27,6 +27,11 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     static protected $bin = array();
 
     /**
+     * @var array List of databases created
+     */
+    static protected $dbs = array();
+
+    /**
      * @var \SebastianBergmann\Environment\Runtime
      */
     protected $runtime;
@@ -531,6 +536,84 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('blob', mysql_field_flags($result, 11));
     }
 
+    public function test_mysql_field_utf8()
+    {
+        $this->getConnection('shim_test_utf8', 'utf8');
+        $result = mysql_query('SELECT * FROM testing LIMIT 1');
+
+        $this->assertEquals('testing', mysql_field_table($result, 0));
+        $this->assertEquals('id', mysql_field_name($result, 0));
+        $this->assertEquals('int', mysql_field_type($result, 0));
+        $this->assertEquals(11, mysql_field_len($result, 0));
+        $this->assertEquals('not_null primary_key auto_increment', mysql_field_flags($result, 0));
+
+        $this->assertEquals('testing', mysql_field_table($result, 1));
+        $this->assertEquals('one', mysql_field_name($result, 1));
+        $this->assertEquals('string', mysql_field_type($result, 1));
+        $this->assertEquals(255*3, mysql_field_len($result, 1));
+        $this->assertEquals('multiple_key', mysql_field_flags($result, 1));
+
+        $this->assertEquals('testing', mysql_field_table($result, 2));
+        $this->assertEquals('two', mysql_field_name($result, 2));
+        $this->assertEquals('string', mysql_field_type($result, 2));
+        $this->assertEquals(255*3, mysql_field_len($result, 2));
+        $this->assertEquals('unique_key', mysql_field_flags($result, 2));
+
+        $this->assertEquals('testing', mysql_field_table($result, 3));
+        $this->assertEquals('three', mysql_field_name($result, 3));
+        $this->assertEquals('string', mysql_field_type($result, 3));
+        $this->assertEquals(255*3, mysql_field_len($result, 3));
+        $this->assertEquals('multiple_key', mysql_field_flags($result, 3));
+
+        $this->assertEquals('testing', mysql_field_table($result, 4));
+        $this->assertEquals('four', mysql_field_name($result, 4));
+        $this->assertEquals('string', mysql_field_type($result, 4));
+        $this->assertEquals(255*3, mysql_field_len($result, 4));
+        $this->assertEquals('multiple_key', mysql_field_flags($result, 4));
+
+        $this->assertEquals('testing', mysql_field_table($result, 5));
+        $this->assertEquals('five', mysql_field_name($result, 5));
+        $this->assertEquals('string', mysql_field_type($result, 5));
+        $this->assertEquals(255*3, mysql_field_len($result, 5));
+        $this->assertEmpty(mysql_field_flags($result, 5));
+
+        $this->assertEquals('testing', mysql_field_table($result, 6));
+        $this->assertEquals('six', mysql_field_name($result, 6));
+        $this->assertEquals('string', mysql_field_type($result, 6));
+        $this->assertEquals(255*3, mysql_field_len($result, 6));
+        $this->assertEmpty(mysql_field_flags($result, 6));
+
+        $this->assertEquals('testing', mysql_field_table($result, 7));
+        $this->assertEquals('seven', mysql_field_name($result, 7));
+        $this->assertEquals('string', mysql_field_type($result, 7));
+        $this->assertEquals(255*3, mysql_field_len($result, 7));
+        $this->assertEquals('multiple_key', mysql_field_flags($result, 7));
+
+        $this->assertEquals('testing', mysql_field_table($result, 8));
+        $this->assertEquals('eight', mysql_field_name($result, 8));
+        $this->assertEquals('string', mysql_field_type($result, 8));
+        $this->assertEquals(255*3, mysql_field_len($result, 8));
+        $this->assertEmpty(mysql_field_flags($result, 8));
+
+        $this->assertEquals('testing', mysql_field_table($result, 9));
+        $this->assertEquals('nine', mysql_field_name($result, 9));
+        $this->assertEquals('string', mysql_field_type($result, 9));
+        $this->assertEquals(6*3, mysql_field_len($result, 9));
+        $this->assertEquals('enum', mysql_field_flags($result, 9));
+
+        $this->assertEquals('testing', mysql_field_table($result, 10));
+        $this->assertEquals('ten', mysql_field_name($result, 10));
+        $this->assertEquals('string', mysql_field_type($result, 10));
+        $this->assertEquals(15*3, mysql_field_len($result, 10));
+        $this->assertEquals('set', mysql_field_flags($result, 10));
+
+        $this->assertEquals('testing', mysql_field_table($result, 11));
+        $this->assertEquals('eleven', mysql_field_name($result, 11));
+        $this->assertEquals('blob', mysql_field_type($result, 11));
+        $this->assertEquals(16777215*3, mysql_field_len($result, 11));
+        $this->assertEquals('blob', mysql_field_flags($result, 11));
+    }
+
     /**
      * @expectedException \PHPUnit_Framework_Error_Warning
      * @expectedExceptionMessageRegExp /^(mysql_field_name\(\): )?Field 999 is invalid for MySQL result index .*$/
@@ -928,8 +1011,9 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         }
 
         mysql_connect(static::$host, 'root');
-        mysql_query('DROP DATABASE IF EXISTS shim_test');
-        mysql_query('DROP DATABASE IF EXISTS `shim-test`');
+        foreach (self::$dbs as $db) {
+            mysql_query("DROP DATABASE IF EXISTS `$db`");
+        }
     }
 
     public function mysql_fetch_DataProvider()
@@ -1128,14 +1212,16 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    protected function getConnection($db = 'shim_test')
+    protected function getConnection($db = 'shim_test', $encoding = 'latin1')
     {
+        self::$dbs[$db] = $db;
+
         $mysql = mysql_connect(static::$host, 'root');
         $this->assertConnection($mysql);
 
-        mysql_query('SET NAMES latin1');
+        mysql_query('SET NAMES ' . $encoding);
 
-        $result = mysql_query("CREATE DATABASE IF NOT EXISTS `$db` CHARACTER SET latin1;");
+        $result = mysql_query("CREATE DATABASE IF NOT EXISTS `$db` CHARACTER SET $encoding;");
         $this->assertTrue($result);
         $result = mysql_select_db($db);
         $this->assertTrue($result);
@@ -1160,7 +1246,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                 INDEX seven_eight_idx (seven, eight),
                 UNIQUE INDEX seven_eight_unq (seven, eight),
                 PRIMARY KEY (id)
-            ) CHARACTER SET latin1;"
+            ) CHARACTER SET $encoding;"
         );
 
         mysql_query(
@@ -1184,7 +1270,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                 INDEX seven_eight_idx (seven, eight),
                 UNIQUE INDEX seven_eight_unq (seven, eight),
                 PRIMARY KEY (id)
-            ) CHARACTER SET latin1;"
+            ) CHARACTER SET $encoding;"
         );
 
         if ($db !== null) {
