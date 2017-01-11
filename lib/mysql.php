@@ -153,9 +153,9 @@ namespace {
             $link = \Dshafik\MySQL::getConnection($link);
 
             return mysqli_query(
-                $link,
-                'USE `' . mysqli_real_escape_string($link, $databaseName) . '`'
-            ) !== false;
+                    $link,
+                    'USE `' . mysqli_real_escape_string($link, $databaseName) . '`'
+                ) !== false;
         }
 
         function mysql_query($query, \mysqli $link = null)
@@ -268,10 +268,10 @@ namespace {
 
             $found = true;
             if (strpos($field, '.') !== false) {
-                list($table, $name) =  explode('.', $field);
+                list($table, $name) = explode('.', $field);
                 $i = 0;
                 $found = false;
-		        mysqli_field_seek($result, 0);
+                mysqli_field_seek($result, 0);
                 while ($column = mysqli_fetch_field($result)) {
                     if ($column->table === $table && $column->name === $name) {
                         $field = $i;

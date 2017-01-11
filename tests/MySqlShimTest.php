@@ -14,24 +14,24 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     /**
      * @var string MySQL Host
      */
-    static protected $host;
+    protected static $host;
 
-    static protected $password = null;
+    protected static $password = null;
 
     /**
      * @var string Docker container
      */
-    static protected $container;
+    protected static $container;
 
     /**
      * @var array Location of binaries
      */
-    static protected $bin = array();
+    protected static $bin = array();
 
     /**
      * @var array List of databases created
      */
-    static protected $dbs = array();
+    protected static $dbs = array();
 
     /**
      * @var \SebastianBergmann\Environment\Runtime
@@ -308,7 +308,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             "INSERT INTO
                 testing (id, one, two, three, four, five, six, seven, eight, nine, ten, eleven)
              VALUES
-                (5, '5', '5', '5', '5', '5', '5', '5', '5', '5', '5', '5')");
+                (5, '5', '5', '5', '5', '5', '5', '5', '5', '5', '5', '5')"
+        );
         $this->assertTrue($result);
         $this->assertEquals(5, mysql_insert_id());
     }
@@ -785,7 +786,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $result = mysql_query('SELECT one, two AS aliased FROM testing');
         $this->assertResult($result);
 
-        for($i = 0, $max = mysql_num_rows($result); $i < $max; $i++) {
+        for ($i = 0, $max = mysql_num_rows($result); $i < $max; $i++) {
             $this->assertEquals($i+1, mysql_result($result, $i, 0));
             $this->assertEquals($i+1, mysql_result($result, $i, 'one'));
             $this->assertEquals($i+1, mysql_result($result, $i, 1));
@@ -889,7 +890,9 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
         $this->assertRegExp(
             '@You have an error in your SQL syntax; check the manual that corresponds to your (.*?) ' .
-            'server version for the right syntax to use near \'\' at line 1@', mysql_error());
+            'server version for the right syntax to use near \'\' at line 1@',
+            mysql_error()
+        );
     }
 
     public function test_mysql_errno()
