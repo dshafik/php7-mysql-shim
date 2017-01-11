@@ -20,5 +20,13 @@
     },
     "autoload": {
         "files": ["lib/mysql.php"]
+    },
+    "scripts": {
+        "test": "phpunit",
+        "fix-cs": [
+            "phpcbf --standard=PSR1,PSR2 ./libs ./tests",
+            "php-cs-fixer fix --rules=@PSR2 ./lib",
+            "php-cs-fixer fix --rules=@PSR2 ./tests"
+        ]
     }
 }
