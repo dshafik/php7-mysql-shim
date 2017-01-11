@@ -23,11 +23,13 @@ To install, either add `dshafik/php7-mysql-shim` to your `composer.json`:
 $ composer require dshafik/php7-mysql-shim
 ```
 
-or, clone/download this repo, and include `mysql.php` in your project.
+or, clone/download this repo, and include `lib/mysql.php` in your project.
 
 ## Usage
 
-Once the file is included, it will create `mysql_*` functions if they don't already exist. _**You may safely include the file in a PHP 5.3.6+ project**_, it will do nothing if the mysql extension is already available.
+When installed with composer, the library is included automatically. 
+
+Once the `lib/mysql.php` file is included, it will create `mysql_*` functions if they don't already exist. _**You may safely include the file in a PHP 5.3.6+ project**_, it will do nothing if the mysql extension is already available.
 
 ## Caveats
 
