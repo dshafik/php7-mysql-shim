@@ -21,13 +21,17 @@
 namespace {
 
     if (!extension_loaded('mysql')) {
-        define ('MYSQL_ASSOC', 1);
-        define ('MYSQL_NUM', 2);
-        define ('MYSQL_BOTH', 3);
-        define ('MYSQL_CLIENT_COMPRESS', 32);
-        define ('MYSQL_CLIENT_SSL', 2048);
-        define ('MYSQL_CLIENT_INTERACTIVE', 1024);
-        define ('MYSQL_CLIENT_IGNORE_SPACE', 256);
+        if (!extension_loaded('mysqli')) {
+            trigger_error('php7-mysql-shim: ext/mysqli is required', E_USER_ERROR);
+        }
+
+        define('MYSQL_ASSOC', 1);
+        define('MYSQL_NUM', 2);
+        define('MYSQL_BOTH', 3);
+        define('MYSQL_CLIENT_COMPRESS', 32);
+        define('MYSQL_CLIENT_SSL', 2048);
+        define('MYSQL_CLIENT_INTERACTIVE', 1024);
+        define('MYSQL_CLIENT_IGNORE_SPACE', 256);
 
         function mysql_connect(
             $hostname = null,
