@@ -529,7 +529,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('testing', mysql_field_table($result, 10));
         $this->assertEquals('ten', mysql_field_name($result, 10));
         $this->assertEquals('string', mysql_field_type($result, 10));
-        $this->assertEquals(15, mysql_field_len($result, 10));
+        $this->assertEquals(26, mysql_field_len($result, 10));
         $this->assertEquals('set', mysql_field_flags($result, 10));
 
         $this->assertEquals('testing', mysql_field_table($result, 11));
@@ -607,7 +607,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('testing', mysql_field_table($result, 10));
         $this->assertEquals('ten', mysql_field_name($result, 10));
         $this->assertEquals('string', mysql_field_type($result, 10));
-        $this->assertEquals(15*3, mysql_field_len($result, 10));
+        $this->assertEquals(26*3, mysql_field_len($result, 10));
         $this->assertEquals('set', mysql_field_flags($result, 10));
 
         $this->assertEquals('testing', mysql_field_table($result, 11));
@@ -1245,8 +1245,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                 six varchar(255),
                 seven varchar(255),
                 eight varchar(255),
-                nine ENUM('one', 'two', '\'three'),
-                ten SET('one', 'two', '\'\'three'),
+                nine ENUM('one', 'two', '\'three', 'three', 'four'),
+                ten SET('one', 'two', '\'\'three', 'three', 'four'),
                 eleven MEDIUMTEXT,
                 INDEX one_idx (one),
                 UNIQUE INDEX two_unq (two),
@@ -1269,8 +1269,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                 six varchar(255),
                 seven varchar(255),
                 eight varchar(255),
-                nine ENUM('one', 'two', '\'three'),
-                ten SET('one', 'two', '\'\'three'),
+                nine ENUM('one', 'two', '\'three', 'three', 'four'),
+                ten SET('one', 'two', '\'\'three', 'three', 'four'),
                 eleven MEDIUMTEXT,
                 INDEX one_idx (one),
                 UNIQUE INDEX two_unq (two),
