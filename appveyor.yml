@@ -8,30 +8,34 @@ services:
 
 environment:
   matrix:
-  - DEPS: lock
-    PHP_VERSION: 5.6
-  - DEPS: low
-    PHP_VERSION: 5.6
-  - DEPS: high
-    PHP_VERSION: 5.6
-  - DEPS: dev
-    PHP_VERSION: 5.6
-  - DEPS: lock
-    PHP_VERSION: 7.0
-  - DEPS: low
-    PHP_VERSION: 7.0
-  - DEPS: high
-    PHP_VERSION: 7.0
-  - DEPS: dev
-    PHP_VERSION: 7.0
-  - DEPS: lock
-    PHP_VERSION: 7.1
-  - DEPS: low
-    PHP_VERSION: 7.1
-  - DEPS: high
-    PHP_VERSION: 7.1
-  - DEPS: dev
-    PHP_VERSION: 7.1
+  - PHP_VERSION: 5.6
+    DEPS: lock
+  - PHP_VERSION: 5.6
+    DEPS: low
+  - PHP_VERSION: 5.6
+    DEPS: high
+  - PHP_VERSION: 7.0
+    DEPS: lock
+  - PHP_VERSION: 7.0
+    DEPS: low
+  - PHP_VERSION: 7.0
+    DEPS: high
+  - PHP_VERSION: 7.1
+    DEPS: lock
+  - PHP_VERSION: 7.1
+    DEPS: low
+  - PHP_VERSION: 7.1
+    DEPS: high
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    # PHP < dev version may fail with composer.lock
+    # Currently running PHP 7.1
+    - PHP_VERSION: 5.6
+      DEPS: lock
+    - PHP_VERSION: 7.0
+      DEPS: lock
 
 ## Cache composer bits
 cache:

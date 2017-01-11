@@ -35,29 +35,13 @@ env:
   # lax (e.g. >=5.3.6 and a platform of 5.3.6 running on 7.0 which doesn't include
   # necessary bug fixes for 7.0)
   - DEPS='high'
-  # composer update --minimum-stability=dev
-  - DEPS='dev'
 matrix:
   fast_finish: true
   allow_failures:
     # HHVM may fail in all configurations
     - php: hhvm
-      env: DEPS='lock'
-    - php: hhvm
-      env: DEPS='low'
-    - php: hhvm
-      env: DEPS='high'
-    - php: hhvm
-      env: DEPS='dev'
     # PHP nightly may fail in all configuration
     - php: nightly
-      env: DEPS='lock'
-    - php: nightly
-      env: DEPS='low'
-    - php: nightly
-      env: DEPS='high'
-    - php: nightly
-      env: DEPS='dev'
     # PHP < dev version may fail with composer.lock
     # Currently running PHP 7.1
     - php: 5.3
@@ -70,20 +54,7 @@ matrix:
       env: DEPS='lock'
     - php: 7.0
       env: DEPS='lock'
-    # Everything may fail with --minimum-stability=dev
-    - php: 5.3
-      env: DEPS='dev'
-    - php: 5.4
-      env: DEPS='dev'
-    - php: 5.5
-      env: DEPS='dev'
-    - php: 5.6
-      env: DEPS='dev'
-    - php: 7.0
-      env: DEPS='dev'
-    - php: 7.1
-      env: DEPS='dev'
-    # Everything except HHVM/nightly should pass with update
+    # Everything except HHVM/nightly should pass with high/low
 
 sudo: false
 before_install:
