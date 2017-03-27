@@ -1,0 +1,75 @@
+build: false
+platform:
+  - x64
+clone_folder: c:\projects\php7-mysql-shim
+
+services:
+  - mysql
+
+environment:
+  matrix:
+  - PHP_VERSION: 5.6
+    DEPS: lock
+  - PHP_VERSION: 5.6
+    DEPS: low
+  - PHP_VERSION: 5.6
+    DEPS: high
+  - PHP_VERSION: 7.0
+    DEPS: lock
+  - PHP_VERSION: 7.0
+    DEPS: low
+  - PHP_VERSION: 7.0
+    DEPS: high
+  - PHP_VERSION: 7.1
+    DEPS: lock
+  - PHP_VERSION: 7.1
+    DEPS: low
+  - PHP_VERSION: 7.1
+    DEPS: high
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    # PHP < dev version may fail with composer.lock
+    # Currently running PHP 7.1
+    - PHP_VERSION: 5.6
+      DEPS: lock
+    - PHP_VERSION: 7.0
+      DEPS: lock
+
+## Cache composer bits
+cache:
+    - '%LOCALAPPDATA%\Composer\files -> composer.lock'
+
+## Set up environment variables
+init:
+    - SET PATH=C:\Program Files\OpenSSL;c:\tools\php;%PATH%
+    - SET COMPOSER_NO_INTERACTION=1
+    - SET PHP=1
+    - SET ANSICON=121x90 (121x90)
+
+## Install PHP and composer, and run the appropriate composer command
+install:
+    - IF EXIST c:\tools\php (SET PHP=0)
+    - ps: appveyor-retry cinst --ignore-checksums -y php --version ((choco search php --exact --all-versions -r | select-string -pattern $Env:PHP_VERSION | Select-Object -first 1) -replace '[php|]','')
+    - cd c:\tools\php
+    - IF %PHP%==1 copy php.ini-production php.ini /Y
+    - IF %PHP%==1 echo date.timezone="UTC" >> php.ini
+    - IF %PHP%==1 echo extension_dir=ext >> php.ini
+    - IF %PHP%==1 echo extension=php_openssl.dll >> php.ini
+    - IF %PHP%==1 echo extension=php_mbstring.dll >> php.ini
+    - IF %PHP%==1 echo extension=php_fileinfo.dll >> php.ini
+    - IF %PHP%==1 IF %PHP_VERSION%==5.6 echo extension=php_mysql.dll >> php.ini
+    - IF %PHP%==1 echo extension=php_mysqli.dll >> php.ini
+    - IF %PHP%==1 echo @php %%~dp0composer.phar %%* > composer.bat
+    - appveyor-retry appveyor DownloadFile https://getcomposer.org/composer.phar
+    - cd c:\projects\php7-mysql-shim
+    - IF %DEPS%==lock appveyor-retry composer install --no-interaction --prefer-source
+    - IF %DEPS%==dev appveyor-retry composer update --minimum-stability=dev --no-interaction --prefer-source
+    - IF %DEPS%==low appveyor-retry composer update --prefer-lowest --no-interaction --prefer-source
+    - IF %DEPS%==high appveyor-retry composer update --no-interaction --prefer-source
+    - composer show
+
+test_script:
+    - cd c:\projects\php7-mysql-shim
+    - vendor/bin/phpunit -c phpunit.xml.dist

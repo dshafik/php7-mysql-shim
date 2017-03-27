@@ -1,14 +1,37 @@
 <?php
+/**
+ * php7-mysql-shim
+ *
+ * @author Davey Shafik <me@daveyshafik.com>
+ * @copyright Copyright (c) 2017 Davey Shafik
+ * @license MIT License
+ * @link https://github.com/dshafik/php7-mysql-shim
+ */
+
+/**
+ * A drop-in replacement for ext/mysql in PHP 7+ using ext/mysqli instead
+ *
+ * This library is meant to be a _stop-gap_. It will be slower than using
+ * the native functions directly.
+ *
+ * You should switch to ext/pdo_mysql or ext/mysqli, and migrate to prepared
+ * queries (@see http://php.net/manual/en/pdo.prepared-statements.php) to
+ * ensure you are securely interacting with your database.
+ */
 namespace {
 
-    if (!function_exists('\mysql_connect')) {
-        define ('MYSQL_ASSOC', 1);
-        define ('MYSQL_NUM', 2);
-        define ('MYSQL_BOTH', 3);
-        define ('MYSQL_CLIENT_COMPRESS', 32);
-        define ('MYSQL_CLIENT_SSL', 2048);
-        define ('MYSQL_CLIENT_INTERACTIVE', 1024);
-        define ('MYSQL_CLIENT_IGNORE_SPACE', 256);
+    if (!extension_loaded('mysql')) {
+        if (!extension_loaded('mysqli')) {
+            trigger_error('php7-mysql-shim: ext/mysqli is required', E_USER_ERROR);
+        }
+
+        define('MYSQL_ASSOC', 1);
+        define('MYSQL_NUM', 2);
+        define('MYSQL_BOTH', 3);
+        define('MYSQL_CLIENT_COMPRESS', 32);
+        define('MYSQL_CLIENT_SSL', 2048);
+        define('MYSQL_CLIENT_INTERACTIVE', 1024);
+        define('MYSQL_CLIENT_IGNORE_SPACE', 256);
 
         function mysql_connect(
             $hostname = null,
@@ -32,7 +55,7 @@ namespace {
 
             $hash = sha1($hostname . $username . $flags);
             /* persistent connections start with p: */
-            if ($hostname{1} != ':' && isset(\Dshafik\MySQL::$connections[$hash])) {
+            if ($hostname{1} !== ':' && isset(\Dshafik\MySQL::$connections[$hash])) {
                 \Dshafik\MySQL::$last_connection = \Dshafik\MySQL::$connections[$hash]['conn'];
                 \Dshafik\MySQL::$connections[$hash]['refcount'] += 1;
                 return \Dshafik\MySQL::$connections[$hash]['conn'];
@@ -113,7 +136,7 @@ namespace {
             }
 
             $return = true;
-            if (\Dshafik\MySQL::$connections[$link->hash]['refcount'] == 0) {
+            if (\Dshafik\MySQL::$connections[$link->hash]['refcount'] === 0) {
                 $return = mysqli_close($link);
                 unset(\Dshafik\MySQL::$connections[$link->hash]);
             }
@@ -130,9 +153,9 @@ namespace {
             $link = \Dshafik\MySQL::getConnection($link);
 
             return mysqli_query(
-                $link,
-                "USE `" . mysqli_real_escape_string($link, $databaseName) . "`"
-            ) !== false;
+                    $link,
+                    'USE `' . mysqli_real_escape_string($link, $databaseName) . '`'
+                ) !== false;
         }
 
         function mysql_query($query, \mysqli $link = null)
@@ -160,14 +183,14 @@ namespace {
 
         function mysql_list_dbs(\mysqli $link = null)
         {
-            return mysql_query("SHOW DATABASES", $link);
+            return mysql_query('SHOW DATABASES', $link);
         }
 
         function mysql_list_tables($databaseName, \mysqli $link = null)
         {
             $link = \Dshafik\MySQL::getConnection($link);
             $query = sprintf(
-                "SHOW TABLES FROM `%s`",
+                'SHOW TABLES FROM `%s`',
                 mysql_real_escape_string($databaseName, $link)
             );
             return mysql_query($query, $link);
@@ -178,7 +201,7 @@ namespace {
             $link = \Dshafik\MySQL::getConnection($link);
 
             $query = sprintf(
-                "SHOW COLUMNS FROM `%s`.`%s`",
+                'SHOW COLUMNS FROM `%s`.`%s`',
                 mysqli_real_escape_string($link, $databaseName),
                 mysqli_real_escape_string($link, $tableName)
             );
@@ -190,7 +213,7 @@ namespace {
                 return $result;
             }
 
-            trigger_error("mysql_list_fields(): Unable to save MySQL query result", E_USER_WARNING);
+            trigger_error('mysql_list_fields(): Unable to save MySQL query result', E_USER_WARNING);
             // @codeCoverageIgnoreStart
             return false;
             // @codeCoverageIgnoreEnd
@@ -198,7 +221,7 @@ namespace {
 
         function mysql_list_processes(\mysqli $link = null)
         {
-            return mysql_query("SHOW PROCESSLIST", $link);
+            return mysql_query('SHOW PROCESSLIST', $link);
         }
 
         function mysql_error(\mysqli $link = null)
@@ -223,7 +246,7 @@ namespace {
 
         function mysql_result($result, $row, $field = 0)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -232,7 +255,7 @@ namespace {
             if (!mysqli_data_seek($result, $row)) {
                 trigger_error(
                     sprintf(
-                        "mysql_result(): Unable to jump to row %d on MySQL result index %s",
+                        'mysql_result(): Unable to jump to row %d on MySQL result index %s',
                         $row,
                         spl_object_hash($result)
                     ),
@@ -244,13 +267,13 @@ namespace {
             }
 
             $found = true;
-            if (strpos($field, ".") !== false) {
-                list($table, $name) =  explode(".", $field);
+            if (strpos($field, '.') !== false) {
+                list($table, $name) = explode('.', $field);
                 $i = 0;
                 $found = false;
-		        mysqli_field_seek($result, 0);
+                mysqli_field_seek($result, 0);
                 while ($column = mysqli_fetch_field($result)) {
-                    if ($column->table == $table && $column->name == $name) {
+                    if ($column->table === $table && $column->name === $name) {
                         $field = $i;
                         $found = true;
                         break;
@@ -266,7 +289,7 @@ namespace {
 
             trigger_error(
                 sprintf(
-                    "%s(): %s not found in MySQL result index %s",
+                    '%s(): %s not found in MySQL result index %s',
                     __FUNCTION__,
                     $field,
                     spl_object_hash($result)
@@ -280,7 +303,7 @@ namespace {
 
         function mysql_num_rows($result)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -295,7 +318,7 @@ namespace {
 
         function mysql_num_fields($result)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -305,7 +328,7 @@ namespace {
 
         function mysql_fetch_row($result)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -315,7 +338,7 @@ namespace {
 
         function mysql_fetch_array($result, $resultType = MYSQL_BOTH)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -325,7 +348,7 @@ namespace {
 
         function mysql_fetch_assoc($result) /* : array|null */
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -336,7 +359,7 @@ namespace {
 
         function mysql_fetch_object($result, $class = null, array $params = array()) /* : object|null */
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -353,7 +376,7 @@ namespace {
 
         function mysql_data_seek($result, $offset)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -363,7 +386,7 @@ namespace {
 
         function mysql_fetch_lengths($result) /* : array|*/
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -373,7 +396,7 @@ namespace {
 
         function mysql_fetch_field($result) /* : object|*/
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -383,7 +406,7 @@ namespace {
 
         function mysql_field_seek($result, $field)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -393,7 +416,7 @@ namespace {
 
         function mysql_free_result($result)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -403,7 +426,7 @@ namespace {
 
         function mysql_field_name($result, $field)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -413,7 +436,7 @@ namespace {
 
         function mysql_field_table($result, $field)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -423,17 +446,17 @@ namespace {
 
         function mysql_field_len($result, $field)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
             }
-            return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'len');
+            return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'length');
         }
 
         function mysql_field_type($result, $field)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -443,7 +466,7 @@ namespace {
 
         function mysql_field_flags($result, $field)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -456,7 +479,7 @@ namespace {
             if (\Dshafik\MySQL::$last_connection === null) {
                 trigger_error(
                     sprintf(
-                        "%s() is insecure; use mysql_real_escape_string() instead!",
+                        '%s() is insecure; use mysql_real_escape_string() instead!',
                         __FUNCTION__
                     ),
                     E_USER_NOTICE
@@ -522,21 +545,21 @@ namespace {
             return mysqli_set_charset(\Dshafik\MySQL::getConnection($link), $charset);
         }
 
-        function mysql_db_name($result, $row, $field = NULL)
+        function mysql_db_name($result, $row, $field = 0)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
             }
 
-            // Alias as per http://lxr.php.net/xref/PHP_5_6/ext/mysql/php_mysql.c#319
-            return mysql_result($result, $row, 'Database');
+            // Alias as per https://github.com/php/php-src/blob/PHP-5.6/ext/mysql/php_mysql.c#L319
+            return mysql_result($result, $row, $field);
         }
 
         function mysql_tablename($result, $row)
         {
-            if (\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
+            if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
@@ -573,9 +596,9 @@ namespace {
             return mysql_field_flags($result, $field);
         }
 
-        function mysql_selectdb($database_name, $link_identifier = NULL)
+        function mysql_selectdb($databaseName, $link = null)
         {
-            return mysql_select_db($database_name, $link_identifier);
+            return mysql_select_db($databaseName, $link);
         }
 
         function mysql_freeresult($result)
@@ -593,29 +616,29 @@ namespace {
             return mysql_num_rows($result);
         }
 
-        function mysql_listdbs($link_identifier = NULL)
+        function mysql_listdbs($link)
         {
-            return mysql_list_dbs($link_identifier);
+            return mysql_list_dbs($link);
         }
 
-        function mysql_listtables($database_name, $link_identifier = NULL)
+        function mysql_listtables($databaseName, $link = null)
         {
-            return mysql_list_tables($database_name, $link_identifier);
+            return mysql_list_tables($databaseName, $link);
         }
 
-        function mysql_listfields($database_name, $table_name, $link_identifier = NULL)
+        function mysql_listfields($databaseName, $tableName, $link = null)
         {
-            return mysql_list_fields($database_name, $table_name, $link_identifier);
+            return mysql_list_fields($databaseName, $tableName, $link);
         }
 
-        function mysql_dbname($result, $row, $field = NULL)
+        function mysql_dbname($result, $row, $field = 0)
         {
             return mysql_db_name($result, $row, $field);
         }
 
-        function mysql_table_name($result, $i)
+        function mysql_table_name($result, $row)
         {
-            return mysql_tablename($result, $i);
+            return mysql_tablename($result, $row);
         }
     }
 }
@@ -634,9 +657,9 @@ namespace Dshafik {
             }
 
             if (static::$last_connection === null) {
-                $err = "A link to the server could not be established";
+                $err = 'A link to the server could not be established';
                 if ($func !== null) {
-                    $err = $func . "(): no MySQL-Link resource supplied";
+                    $err = $func . '(): no MySQL-Link resource supplied';
                 }
                 trigger_error($err, E_USER_WARNING);
                 return false;
@@ -652,8 +675,8 @@ namespace Dshafik {
             } catch (\Exception $e) {
                 trigger_error(
                     sprintf(
-                        "mysql_field_%s(): Field %d is invalid for MySQL result index %s",
-                        $what,
+                        'mysql_field_%s(): Field %d is invalid for MySQL result index %s',
+                        ($what !== 'length') ? $what : 'len',
                         $field,
                         spl_object_hash($result)
                     ),
@@ -665,20 +688,16 @@ namespace Dshafik {
                 // @codeCoverageIgnoreEnd
             }
 
-            if ($what == 'name' || $what == 'table') {
-                return $field->{$what};
-            }
-
-            if ($what == 'len') {
-                return $field->length;
-            }
-
-            if ($what == 'type') {
+            if ($what === 'type') {
                 return static::getFieldType($field->type);
             }
 
-            if ($what == 'flags') {
+            if ($what === 'flags') {
                 return static::getFieldFlags($field->flags);
+            }
+
+            if (isset($field->{$what})) {
+                return $field->{$what};
             }
 
             return false;
@@ -687,28 +706,29 @@ namespace Dshafik {
         public static function checkValidResult($result, $function)
         {
             if (!($result instanceof \mysqli_result)) {
-                if ($function != "mysql_fetch_object") {
+                if ($function !== 'mysql_fetch_object') {
                     trigger_error(
-                        $function . "() expects parameter 1 to be resource, " . strtolower(gettype($result)) . " given",
+                        $function . '() expects parameter 1 to be resource, ' . strtolower(gettype($result)) . ' given',
                         E_USER_WARNING
                     );
                 }
 
-                if ($function == "mysql_fetch_object") {
+                if ($function === 'mysql_fetch_object') {
                     trigger_error(
-                        $function . "(): supplied argument is not a valid MySQL result resource",
+                        $function . '(): supplied argument is not a valid MySQL result resource',
                         E_USER_WARNING
                     );
                 }
                 return false;
             }
 
+            return true;
         }
 
         public static function escapeString($unescapedString)
         {
-            $escapedString = "";
-            for ($i = 0; $i < strlen($unescapedString); $i++) {
+            $escapedString = '';
+            for ($i = 0, $max = strlen($unescapedString); $i < $max; $i++) {
                 $escapedString .= self::escapeChar($unescapedString{$i});
             }
 
@@ -719,18 +739,18 @@ namespace Dshafik {
         {
             // Order of flags taken from http://lxr.php.net/xref/PHP_5_6/ext/mysql/php_mysql.c#2507
             $flags = array(
-                MYSQLI_NOT_NULL_FLAG => "not_null",
-                MYSQLI_PRI_KEY_FLAG => "primary_key",
-                MYSQLI_UNIQUE_KEY_FLAG => "unique_key",
-                MYSQLI_MULTIPLE_KEY_FLAG => "multiple_key",
-                MYSQLI_BLOB_FLAG => "blob",
-                MYSQLI_UNSIGNED_FLAG => "unsigned",
-                MYSQLI_ZEROFILL_FLAG => "zerofill",
-                MYSQLI_BINARY_FLAG => "binary",
-                MYSQLI_ENUM_FLAG => "enum",
-                MYSQLI_SET_FLAG => "set",
-                MYSQLI_AUTO_INCREMENT_FLAG => "auto_increment",
-                MYSQLI_TIMESTAMP_FLAG => "timestamp",
+                MYSQLI_NOT_NULL_FLAG => 'not_null',
+                MYSQLI_PRI_KEY_FLAG => 'primary_key',
+                MYSQLI_UNIQUE_KEY_FLAG => 'unique_key',
+                MYSQLI_MULTIPLE_KEY_FLAG => 'multiple_key',
+                MYSQLI_BLOB_FLAG => 'blob',
+                MYSQLI_UNSIGNED_FLAG => 'unsigned',
+                MYSQLI_ZEROFILL_FLAG => 'zerofill',
+                MYSQLI_BINARY_FLAG => 'binary',
+                MYSQLI_ENUM_FLAG => 'enum',
+                MYSQLI_SET_FLAG => 'set',
+                MYSQLI_AUTO_INCREMENT_FLAG => 'auto_increment',
+                MYSQLI_TIMESTAMP_FLAG => 'timestamp',
             );
 
             $fieldFlags = array();
@@ -740,7 +760,7 @@ namespace Dshafik {
                 }
             }
 
-            return implode(" ", $fieldFlags);
+            return implode(' ', $fieldFlags);
         }
 
         protected static function getFieldType($what)
@@ -780,7 +800,7 @@ namespace Dshafik {
                 MYSQLI_TYPE_GEOMETRY => 'geometry',
             );
 
-            return isset($types[$what]) ? $types[$what] : "unknown";
+            return isset($types[$what]) ? $types[$what] : 'unknown';
         }
 
         protected static function escapeChar($char)
