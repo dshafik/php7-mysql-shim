@@ -512,7 +512,7 @@ namespace {
 
         function mysql_ping(\mysqli $link = null)
         {
-            return mysqli_ping($link);
+            return mysqli_ping(\Dshafik\MySQL::getConnection($link));
         }
 
         function mysql_get_client_info(\mysqli $link = null)
