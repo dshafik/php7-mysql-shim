@@ -52,6 +52,12 @@ namespace {
             if (null === $password) {
                 $password = ini_get('mysqli.default_pw') ?: null;
             }
+            trigger_error(
+                "php7-mysql-shim: The mysql extension is deprecated "
+                . "and was removed in the PHP 7.0: use mysqli or PDO instead.",
+                E_USER_DEPRECATED
+            );
+
 
             $hash = sha1($hostname . $username . $flags);
             /* persistent connections start with p: */
