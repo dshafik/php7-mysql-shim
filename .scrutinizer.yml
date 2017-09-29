@@ -1,5 +1,5 @@
 filter:
-    paths: [lib/*]
+    paths: [src/*]
     excluded_paths: [tests/*, vendor/*, build/*, tools/*, docs/*]
 checks:
   php:
@@ -17,7 +17,7 @@ tools:
     config:
       standard: PSR2
     filter:
-      paths: ['lib']
+      paths: ['src']
   php_loc:
     enabled: true
     excluded_dirs: [vendor, spec]

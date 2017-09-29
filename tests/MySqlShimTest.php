@@ -1,12 +1,14 @@
 <?php
 /**
- * php7-mysql-shim
+ * php7-mysql-shim.
  *
  * @author Davey Shafik <me@daveyshafik.com>
  * @copyright Copyright (c) 2017 Davey Shafik
  * @license MIT License
+ *
  * @link https://github.com/dshafik/php7-mysql-shim
  */
+
 namespace Dshafik\MySQL\Tests;
 
 class MySqlShimTest extends \PHPUnit_Framework_TestCase
@@ -217,7 +219,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertResult($result);
         $i = 0;
         while ($row = mysql_fetch_assoc($result)) {
-            $i++;
+            ++$i;
         }
         $this->assertEquals(4, $i);
 
@@ -284,7 +286,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->getConnection();
         $result = mysql_db_query('shim_test', 'SELECT DATABASE()');
         $this->assertResult($result);
-        $rows =  mysql_fetch_row($result);
+        $rows = mysql_fetch_row($result);
         $this->assertEquals('shim_test', $rows[0]);
         $result = mysql_db_query('mysql', 'SELECT DATABASE()');
         $this->assertResult($result);
@@ -355,7 +357,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertResult($result);
         $i = 0;
         while ($row = mysql_fetch_assoc($result)) {
-            $i++;
+            ++$i;
             $this->assertArrayHasKey('Tables_in_shim-test', $row);
         }
         $this->assertEquals(2, $i);
@@ -375,7 +377,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
         $i = 0;
         while ($row = mysql_fetch_assoc($result)) {
-            $i++;
+            ++$i;
 
             $this->assertEquals(
                 array(
@@ -384,7 +386,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                     'Null',
                     'Key',
                     'Default',
-                    'Extra'
+                    'Extra',
                 ),
                 array_keys($row)
             );
@@ -431,7 +433,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
         $i = 0;
         while ($row = mysql_fetch_assoc($result)) {
-            $i++;
+            ++$i;
             $this->assertEquals(
                 array(
                     'Field',
@@ -439,7 +441,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                     'Null',
                     'Key',
                     'Default',
-                    'Extra'
+                    'Extra',
                 ),
                 array_keys($row)
             );
@@ -553,67 +555,67 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('testing', mysql_field_table($result, 1));
         $this->assertEquals('one', mysql_field_name($result, 1));
         $this->assertEquals('string', mysql_field_type($result, 1));
-        $this->assertEquals(255*3, mysql_field_len($result, 1));
+        $this->assertEquals(255 * 3, mysql_field_len($result, 1));
         $this->assertEquals('multiple_key', mysql_field_flags($result, 1));
 
         $this->assertEquals('testing', mysql_field_table($result, 2));
         $this->assertEquals('two', mysql_field_name($result, 2));
         $this->assertEquals('string', mysql_field_type($result, 2));
-        $this->assertEquals(255*3, mysql_field_len($result, 2));
+        $this->assertEquals(255 * 3, mysql_field_len($result, 2));
         $this->assertEquals('unique_key', mysql_field_flags($result, 2));
 
         $this->assertEquals('testing', mysql_field_table($result, 3));
         $this->assertEquals('three', mysql_field_name($result, 3));
         $this->assertEquals('string', mysql_field_type($result, 3));
-        $this->assertEquals(255*3, mysql_field_len($result, 3));
+        $this->assertEquals(255 * 3, mysql_field_len($result, 3));
         $this->assertEquals('multiple_key', mysql_field_flags($result, 3));
 
         $this->assertEquals('testing', mysql_field_table($result, 4));
         $this->assertEquals('four', mysql_field_name($result, 4));
         $this->assertEquals('string', mysql_field_type($result, 4));
-        $this->assertEquals(255*3, mysql_field_len($result, 4));
+        $this->assertEquals(255 * 3, mysql_field_len($result, 4));
         $this->assertEquals('multiple_key', mysql_field_flags($result, 4));
 
         $this->assertEquals('testing', mysql_field_table($result, 5));
         $this->assertEquals('five', mysql_field_name($result, 5));
         $this->assertEquals('string', mysql_field_type($result, 5));
-        $this->assertEquals(255*3, mysql_field_len($result, 5));
+        $this->assertEquals(255 * 3, mysql_field_len($result, 5));
         $this->assertEmpty(mysql_field_flags($result, 5));
 
         $this->assertEquals('testing', mysql_field_table($result, 6));
         $this->assertEquals('six', mysql_field_name($result, 6));
         $this->assertEquals('string', mysql_field_type($result, 6));
-        $this->assertEquals(255*3, mysql_field_len($result, 6));
+        $this->assertEquals(255 * 3, mysql_field_len($result, 6));
         $this->assertEmpty(mysql_field_flags($result, 6));
 
         $this->assertEquals('testing', mysql_field_table($result, 7));
         $this->assertEquals('seven', mysql_field_name($result, 7));
         $this->assertEquals('string', mysql_field_type($result, 7));
-        $this->assertEquals(255*3, mysql_field_len($result, 7));
+        $this->assertEquals(255 * 3, mysql_field_len($result, 7));
         $this->assertEquals('multiple_key', mysql_field_flags($result, 7));
 
         $this->assertEquals('testing', mysql_field_table($result, 8));
         $this->assertEquals('eight', mysql_field_name($result, 8));
         $this->assertEquals('string', mysql_field_type($result, 8));
-        $this->assertEquals(255*3, mysql_field_len($result, 8));
+        $this->assertEquals(255 * 3, mysql_field_len($result, 8));
         $this->assertEmpty(mysql_field_flags($result, 8));
 
         $this->assertEquals('testing', mysql_field_table($result, 9));
         $this->assertEquals('nine', mysql_field_name($result, 9));
         $this->assertEquals('string', mysql_field_type($result, 9));
-        $this->assertEquals(6*3, mysql_field_len($result, 9));
+        $this->assertEquals(6 * 3, mysql_field_len($result, 9));
         $this->assertEquals('enum', mysql_field_flags($result, 9));
 
         $this->assertEquals('testing', mysql_field_table($result, 10));
         $this->assertEquals('ten', mysql_field_name($result, 10));
         $this->assertEquals('string', mysql_field_type($result, 10));
-        $this->assertEquals(26*3, mysql_field_len($result, 10));
+        $this->assertEquals(26 * 3, mysql_field_len($result, 10));
         $this->assertEquals('set', mysql_field_flags($result, 10));
 
         $this->assertEquals('testing', mysql_field_table($result, 11));
         $this->assertEquals('eleven', mysql_field_name($result, 11));
         $this->assertEquals('blob', mysql_field_type($result, 11));
-        $this->assertEquals(16777215*3, mysql_field_len($result, 11));
+        $this->assertEquals(16777215 * 3, mysql_field_len($result, 11));
         $this->assertEquals('blob', mysql_field_flags($result, 11));
     }
 
@@ -713,7 +715,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             call_user_func($function, null);
         } catch (\Exception $e) {
             $this->assertInstanceOf('\PHPUnit_Framework_Error_Warning', $e);
-            $this->assertRegExp('@' . $error . '@', $e->getMessage());
+            $this->assertRegExp('@'.$error.'@', $e->getMessage());
         }
     }
 
@@ -733,13 +735,14 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             if ($resultType) {
                 return $function($result, $resultType);
             }
+
             return $function($result);
         };
 
         $i = 0;
         while ($row = $function($result, $resultType)) {
             $this->assertEquals($results[$i], $row);
-            $i++;
+            ++$i;
         }
 
         $this->assertEquals(count($results), $i);
@@ -786,11 +789,11 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $result = mysql_query('SELECT one, two AS aliased FROM testing');
         $this->assertResult($result);
 
-        for ($i = 0, $max = mysql_num_rows($result); $i < $max; $i++) {
-            $this->assertEquals($i+1, mysql_result($result, $i, 0));
-            $this->assertEquals($i+1, mysql_result($result, $i, 'one'));
-            $this->assertEquals($i+1, mysql_result($result, $i, 1));
-            $this->assertEquals($i+1, mysql_result($result, $i, 'aliased'));
+        for ($i = 0, $max = mysql_num_rows($result); $i < $max; ++$i) {
+            $this->assertEquals($i + 1, mysql_result($result, $i, 0));
+            $this->assertEquals($i + 1, mysql_result($result, $i, 'one'));
+            $this->assertEquals($i + 1, mysql_result($result, $i, 1));
+            $this->assertEquals($i + 1, mysql_result($result, $i, 'aliased'));
         }
     }
 
@@ -889,7 +892,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($result);
 
         $this->assertRegExp(
-            '@You have an error in your SQL syntax; check the manual that corresponds to your (.*?) ' .
+            '@You have an error in your SQL syntax; check the manual that corresponds to your (.*?) '.
             'server version for the right syntax to use near \'\' at line 1@',
             mysql_error()
         );
@@ -935,11 +938,11 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue(mysql_select_db('shim-test'));
     }
-    
+
     public function test_mysql_select_db_invalid()
     {
         $this->getConnection();
-        
+
         $this->assertFalse(mysql_select_db('nonexistent'));
     }
 
@@ -966,22 +969,22 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             }
 
             fwrite(STDERR, '=> Running Docker Container: ');
-            static::$container = exec($docker . ' run -e MYSQL_ALLOW_EMPTY_PASSWORD=1 -P -d  mysql/mysql-server:5.7');
+            static::$container = exec($docker.' run -e MYSQL_ALLOW_EMPTY_PASSWORD=1 -P -d  mysql/mysql-server:5.7');
 
             if (empty(static::$container)) {
                 static::markTestSkipped('Unable to start docker container');
             }
 
-            fwrite(STDERR, static::$container . "\n");
+            fwrite(STDERR, static::$container."\n");
 
             fwrite(STDERR, '=> Finding MySQL Host: ');
-            static::$host = exec($docker . ' port ' . self::$container . ' 3306');
-            fwrite(STDERR, static::$host . "\n");
+            static::$host = exec($docker.' port '.self::$container.' 3306');
+            fwrite(STDERR, static::$host."\n");
 
             fwrite(STDERR, '=> Waiting on mysqld to start:');
             $out = '';
             while (trim($out) !== 'mysqld') {
-                $out = exec(static::$bin['docker'] . ' exec ' . static::$container . ' ps ax | awk \'/mysqld/ {print $NF}\'');
+                $out = exec(static::$bin['docker'].' exec '.static::$container.' ps ax | awk \'/mysqld/ {print $NF}\'');
             }
             fwrite(STDERR, " started\n");
             sleep(3);
@@ -990,7 +993,6 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
             return;
         }
-
 
         static::$host = '0.0.0.0';
         if (getenv('APPVEYOR') !== false) {
@@ -1003,15 +1005,17 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         if (getenv('TRAVIS') === false && getenv('APPVEYOR') === false) {
             fwrite(STDERR, "\n\nStopping Docker Container: ");
-            $output = exec(static::$bin['docker'] . ' stop ' . static::$container);
+            $output = exec(static::$bin['docker'].' stop '.static::$container);
             if (trim($output) !== static::$container) {
                 fwrite(STDERR, " Failed to stop container!\n");
+
                 return;
             }
 
-            $output = exec(static::$bin['docker'] . ' rm ' . static::$container);
+            $output = exec(static::$bin['docker'].' rm '.static::$container);
             if (trim($output) !== static::$container) {
                 fwrite(STDERR, " Failed to remove container!\n");
+
                 return;
             }
             fwrite(STDERR, "Done\n");
@@ -1059,30 +1063,30 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             array(
                 'function' => 'mysql_fetch_array',
                 'results' => $assoc,
-                'resultType' => MYSQL_ASSOC
+                'resultType' => MYSQL_ASSOC,
             ),
             array(
                 'function' => 'mysql_fetch_array',
                 'results' => $array,
-                'resultType' => MYSQL_BOTH
+                'resultType' => MYSQL_BOTH,
             ),
             array(
                 'function' => 'mysql_fetch_array',
                 'results' => $numeric,
-                'resultType' => MYSQL_NUM
+                'resultType' => MYSQL_NUM,
             ),
             array(
                 'function' => 'mysql_fetch_assoc',
-                'results' => $assoc
+                'results' => $assoc,
             ),
             array(
                 'function' => 'mysql_fetch_row',
-                'results' => $numeric
+                'results' => $numeric,
             ),
             array(
                 'function' => 'mysql_fetch_object',
                 'results' => $object,
-            )
+            ),
         );
     }
 
@@ -1110,7 +1114,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             array(
                 'function' => 'mysql_result',
                 'message' => "mysql_result\(\) expects parameter 1 to be resource, (null|NULL) given",
-                'args' => array(0)
+                'args' => array(0),
             ),
             array(
                 'function' => 'mysql_num_rows',
@@ -1126,7 +1130,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                 'function' => 'mysql_fetch_row',
                 'message' => "mysql_fetch_row\(\) expects parameter 1 to be resource, (null|NULL) given",
                 'args' => array(),
-                'skipHHVM' => true
+                'skipHHVM' => true,
             ),
             array(
                 'function' => 'mysql_fetch_array',
@@ -1137,74 +1141,74 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
                 'function' => 'mysql_fetch_assoc',
                 'message' => "mysql_fetch_assoc\(\) expects parameter 1 to be resource, (null|NULL) given",
                 'args' => array(),
-                'skipHHVM' => true
+                'skipHHVM' => true,
             ),
             array(
                 'function' => 'mysql_fetch_object',
                 'message' => "(mysql_fetch_object\(\): )?supplied argument is not a valid MySQL result resource",
-                'args' => array('StdClass')
+                'args' => array('StdClass'),
             ),
             array(
                 'function' => 'mysql_data_seek',
                 'message' => "mysql_data_seek\(\) expects parameter 1 to be resource, (null|NULL) given",
-                'args' => array(0)
+                'args' => array(0),
             ),
             array(
                 'function' => 'mysql_fetch_lengths',
                 'message' => "mysql_fetch_lengths\(\) expects parameter 1 to be resource, (null|NULL) given",
-                'args' => array()
+                'args' => array(),
             ),
             array(
                 'function' => 'mysql_fetch_field',
                 'message' => "mysql_fetch_field\(\) expects parameter 1 to be resource, (null|NULL) given",
-                'args' => array()
+                'args' => array(),
             ),
             array(
                 'function' => 'mysql_field_seek',
                 'message' => "mysql_field_seek\(\) expects parameter 1 to be resource, (null|NULL) given",
-                'args' => array(0)
+                'args' => array(0),
             ),
             array(
                 'function' => 'mysql_free_result',
                 'message' => "mysql_free_result\(\) expects parameter 1 to be resource, (null|NULL) given",
-                'args' => array()
+                'args' => array(),
             ),
             array(
                 'function' => 'mysql_field_name',
                 'message' => "mysql_field_name\(\) expects parameter 1 to be resource, (null|NULL) given",
-                'args' => array(0)
+                'args' => array(0),
             ),
             array(
                 'function' => 'mysql_field_table',
                 'message' => "mysql_field_table\(\) expects parameter 1 to be resource, (null|NULL) given",
-                'args' => array(0)
+                'args' => array(0),
             ),
             array(
                 'function' => 'mysql_field_len',
                 'message' => "mysql_field_len\(\) expects parameter 1 to be resource, (null|NULL) given",
-                'args' => array(0)
+                'args' => array(0),
             ),
             array(
                 'function' => 'mysql_field_type',
                 'message' => "mysql_field_type\(\) expects parameter 1 to be resource, (null|NULL) given",
-                'args' => array(0)
+                'args' => array(0),
             ),
             array(
                 'function' => 'mysql_field_flags',
                 'message' => "mysql_field_flags\(\) expects parameter 1 to be resource, (null|NULL) given",
-                'args' => array(0)
+                'args' => array(0),
             ),
             array(
                 'function' => 'mysql_db_name',
                 'message' => "mysql_db_name\(\) expects parameter 1 to be resource, (null|NULL) given",
                 'args' => array(0),
-                'skipHHVM' => true
+                'skipHHVM' => true,
             ),
             array(
                 'function' => 'mysql_tablename',
                 'message' => "mysql_tablename\(\) expects parameter 1 to be resource, (null|NULL) given",
                 'args' => array(0),
-                'skipHHVM' => true
+                'skipHHVM' => true,
             ),
         );
     }
@@ -1228,7 +1232,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $mysql = mysql_connect(static::$host, 'root', static::$password);
         $this->assertConnection($mysql);
 
-        mysql_query('SET NAMES ' . $encoding);
+        mysql_query('SET NAMES '.$encoding);
 
         $result = mysql_query("CREATE DATABASE IF NOT EXISTS `$db` CHARACTER SET $encoding;");
         $this->assertTrue($result);

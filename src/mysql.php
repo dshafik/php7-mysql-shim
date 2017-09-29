@@ -1,15 +1,16 @@
 <?php
 /**
- * php7-mysql-shim
+ * php7-mysql-shim.
  *
  * @author Davey Shafik <me@daveyshafik.com>
  * @copyright Copyright (c) 2017 Davey Shafik
  * @license MIT License
+ *
  * @link https://github.com/dshafik/php7-mysql-shim
  */
 
 /**
- * A drop-in replacement for ext/mysql in PHP 7+ using ext/mysqli instead
+ * A drop-in replacement for ext/mysql in PHP 7+ using ext/mysqli instead.
  *
  * This library is meant to be a _stop-gap_. It will be slower than using
  * the native functions directly.
@@ -18,6 +19,7 @@
  * queries (@see http://php.net/manual/en/pdo.prepared-statements.php) to
  * ensure you are securely interacting with your database.
  */
+
 namespace {
 
     if (!extension_loaded('mysql')) {
@@ -53,11 +55,12 @@ namespace {
                 $password = ini_get('mysqli.default_pw') ?: null;
             }
 
-            $hash = sha1($hostname . $username . $flags);
+            $hash = sha1($hostname.$username.$flags);
             /* persistent connections start with p: */
             if ($hostname{1} !== ':' && isset(\Dshafik\MySQL::$connections[$hash])) {
                 \Dshafik\MySQL::$last_connection = \Dshafik\MySQL::$connections[$hash]['conn'];
                 \Dshafik\MySQL::$connections[$hash]['refcount'] += 1;
+
                 return \Dshafik\MySQL::$connections[$hash]['conn'];
             }
 
@@ -115,7 +118,8 @@ namespace {
             $password = null,
             $flags = 0
         ) {
-            $hostname = 'p:' . $hostname;
+            $hostname = 'p:'.$hostname;
+
             return mysql_connect($hostname, $username, $password, false, $flags);
         }
 
@@ -154,7 +158,7 @@ namespace {
 
             return mysqli_query(
                     $link,
-                    'USE `' . mysqli_real_escape_string($link, $databaseName) . '`'
+                    'USE `'.mysqli_real_escape_string($link, $databaseName).'`'
                 ) !== false;
         }
 
@@ -178,6 +182,7 @@ namespace {
             if (mysql_select_db($databaseName, $link)) {
                 return mysql_query($query, $link);
             }
+
             return false;
         }
 
@@ -193,6 +198,7 @@ namespace {
                 'SHOW TABLES FROM `%s`',
                 mysql_real_escape_string($databaseName, $link)
             );
+
             return mysql_query($query, $link);
         }
 
@@ -210,6 +216,7 @@ namespace {
 
             if ($result instanceof \mysqli_result) {
                 $result->table = $tableName;
+
                 return $result;
             }
 
@@ -278,7 +285,7 @@ namespace {
                         $found = true;
                         break;
                     }
-                    $i++;
+                    ++$i;
                 }
             }
 
@@ -323,6 +330,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
+
             return mysqli_num_fields($result);
         }
 
@@ -333,6 +341,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
+
             return mysqli_fetch_row($result) ?: false;
         }
 
@@ -343,6 +352,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
+
             return mysqli_fetch_array($result, $resultType) ?: false;
         }
 
@@ -381,6 +391,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
+
             return mysqli_data_seek($result, $offset);
         }
 
@@ -391,6 +402,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
+
             return mysqli_fetch_lengths($result);
         }
 
@@ -401,6 +413,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
+
             return mysqli_fetch_field($result);
         }
 
@@ -411,6 +424,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
+
             return mysqli_field_seek($result, $field);
         }
 
@@ -421,6 +435,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
+
             return mysqli_free_result($result);
         }
 
@@ -431,6 +446,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
+
             return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'name');
         }
 
@@ -441,6 +457,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
+
             return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'table');
         }
 
@@ -451,6 +468,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
+
             return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'length');
         }
 
@@ -461,6 +479,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
+
             return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'type');
         }
 
@@ -471,6 +490,7 @@ namespace {
                 return false;
                 // @codeCoverageIgnoreEnd
             }
+
             return \Dshafik\MySQL::mysqlFieldInfo($result, $field, 'flags');
         }
 
@@ -487,6 +507,7 @@ namespace {
 
                 return \Dshafik\MySQL::escapeString($unescapedString);
             }
+
             return mysql_real_escape_string($unescapedString, null);
         }
 
@@ -659,9 +680,10 @@ namespace Dshafik {
             if (static::$last_connection === null) {
                 $err = 'A link to the server could not be established';
                 if ($func !== null) {
-                    $err = $func . '(): no MySQL-Link resource supplied';
+                    $err = $func.'(): no MySQL-Link resource supplied';
                 }
                 trigger_error($err, E_USER_WARNING);
+
                 return false;
             }
 
@@ -708,17 +730,18 @@ namespace Dshafik {
             if (!($result instanceof \mysqli_result)) {
                 if ($function !== 'mysql_fetch_object') {
                     trigger_error(
-                        $function . '() expects parameter 1 to be resource, ' . strtolower(gettype($result)) . ' given',
+                        $function.'() expects parameter 1 to be resource, '.strtolower(gettype($result)).' given',
                         E_USER_WARNING
                     );
                 }
 
                 if ($function === 'mysql_fetch_object') {
                     trigger_error(
-                        $function . '(): supplied argument is not a valid MySQL result resource',
+                        $function.'(): supplied argument is not a valid MySQL result resource',
                         E_USER_WARNING
                     );
                 }
+
                 return false;
             }
 
@@ -728,7 +751,7 @@ namespace Dshafik {
         public static function escapeString($unescapedString)
         {
             $escapedString = '';
-            for ($i = 0, $max = strlen($unescapedString); $i < $max; $i++) {
+            for ($i = 0, $max = strlen($unescapedString); $i < $max; ++$i) {
                 $escapedString .= self::escapeChar($unescapedString{$i});
             }
 
