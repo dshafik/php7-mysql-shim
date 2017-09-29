@@ -830,13 +830,13 @@ namespace Dshafik {
         {
             switch ($char) {
                 case "\0":
-                    $esc = '\\0';
+                    $esc = "\\0";
                     break;
                 case "\n":
-                    $esc = '\\n';
+                    $esc = "\\n";
                     break;
                 case "\r":
-                    $esc = '\\r';
+                    $esc = "\\r";
                     break;
                 case '\\':
                 case '\'':
@@ -844,7 +844,7 @@ namespace Dshafik {
                     $esc = "\\{$char}";
                     break;
                 case "\032":
-                    $esc = '\\Z';
+                    $esc = "\\Z";
                     break;
                 default:
                     $esc = $char;
