@@ -2,6 +2,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/tvj60v4y3o0mn4wp?svg=true)](https://ci.appveyor.com/project/dshafik/php7-mysql-shim)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/?branch=master)
+[![PDS Skeleton](https://goo.gl/HAoKbM)](https://github.com/php-pds/skeleton)
 [![SensioLabsInsight](https://insight.sensiolabs.com/projects/43c28e54-9c4a-40b4-9cc9-d6409d781dda/mini.png)](https://insight.sensiolabs.com/projects/43c28e54-9c4a-40b4-9cc9-d6409d781dda)
 # PHP 7 Shim for ext/mysql
 

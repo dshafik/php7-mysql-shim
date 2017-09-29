@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": ">=5.3.6",
+        "php": ">=5.3",
         "ext-mysqli": "*"
     },
     "require-dev": {
@@ -19,13 +19,13 @@
         "phpunit/phpunit": "^4.8|^5.2"
     },
     "autoload": {
-        "files": ["lib/mysql.php"]
+        "files": ["src/mysql.php"]
     },
     "scripts": {
         "test": "phpunit",
         "fix-cs": [
-            "phpcbf --standard=PSR1,PSR2 ./libs ./tests",
-            "php-cs-fixer fix --rules=@PSR2 ./lib",
+            "phpcbf --standard=PSR1,PSR2 ./src ./tests",
+            "php-cs-fixer fix --rules=@PSR2 ./src",
             "php-cs-fixer fix --rules=@PSR2 ./tests"
         ]
     }
