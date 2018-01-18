@@ -16,7 +16,8 @@
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.3",
         "friendsofphp/php-cs-fixer": "^1.9|^2.0",
-        "phpunit/phpunit": "^4.8|^5.2"
+        "phpunit/phpunit": "^4.8|^5.2",
+        "phpstan/phpstan": "^0.6.2"
     },
     "autoload": {
         "files": ["lib/mysql.php"]
