@@ -1,15 +1,6 @@
 language: php
 services:
   - mysql
-php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
-  - 7.1
-  - nightly
-  - hhvm
 env:
   # composer install (uses lock file)
   #
@@ -36,10 +27,23 @@ env:
   # necessary bug fixes for 7.0)
   - DEPS='high'
 matrix:
+  include:
+    - php: 5.3
+      dist: precise
+    - php: 5.4
+    - php: 5.5
+    - php: 5.6
+    - php: 7.0
+    - php: 7.1
+    - php: 7.2
+    - php: nightly
+    - php: hhvm
+    - php: hhvm-nightly
   fast_finish: true
   allow_failures:
     # HHVM may fail in all configurations
     - php: hhvm
+    - php: hhvm-nightly
     # PHP nightly may fail in all configuration
     - php: nightly
     # PHP < dev version may fail with composer.lock
