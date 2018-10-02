@@ -979,9 +979,10 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             fwrite(STDERR, static::$host . "\n");
 
             fwrite(STDERR, '=> Waiting on mysqld to start:');
-            $out = '';
-            while (trim($out) !== 'mysqld') {
-                $out = exec(static::$bin['docker'] . ' exec ' . static::$container . ' ps ax | awk \'/mysqld/ {print $NF}\'');
+            $return_var = 1;
+            while ($return_var !== 0) {
+                $cmd = static::$bin['docker'] . ' exec ' . static::$container . ' mysqladmin status 2>&1';
+                exec($cmd, $output, $return_var);
             }
             fwrite(STDERR, " started\n");
             sleep(3);
