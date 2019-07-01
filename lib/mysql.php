@@ -61,9 +61,15 @@ namespace {
                 return \Dshafik\MySQL::$connections[$hash]['conn'];
             }
 
+            if (strpos($hostname, ':') !== false) {
+                list($hostname, $port) = explode(':', $hostname, 2);
+            } else {
+                $port = null;
+            }
+
             /* No flags, means we can use mysqli_connect() */
             if ($flags === 0) {
-                $conn = mysqli_connect($hostname, $username, $password);
+                $conn = mysqli_connect($hostname, $username, $password, '', $port);
                 if (!$conn instanceof mysqli) {
                     return false;
                 }
@@ -84,7 +90,7 @@ namespace {
                     $username,
                     $password,
                     '',
-                    null,
+                    $port,
                     '',
                     $flags
                 );
