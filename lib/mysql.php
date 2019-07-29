@@ -62,7 +62,7 @@ namespace {
             }
 
             /* A custom port can be specified by appending the hostname with :{port} e.g. hostname:3307 */
-            if (preg_match('/^(.+):([\d]+)$/', $hostname, $port_matches) === 1) {
+            if (preg_match('/^(.+):([\d]+)$/', $hostname, $port_matches) === 1 && $port_matches[1] !== "p") {
                 $hostname = $port_matches[1];
                 $port = (int) $port_matches[2];
             } else {
