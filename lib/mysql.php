@@ -61,8 +61,10 @@ namespace {
                 return \Dshafik\MySQL::$connections[$hash]['conn'];
             }
 
-            if (strpos($hostname, ':') !== false) {
-                list($hostname, $port) = explode(':', $hostname, 2);
+            /* A custom port can be specified by appending the hostname with :{port} e.g. hostname:3307 */
+            if (preg_match('/^(.+):([\d]+)$/', $hostname, $port_matches) === 1) {
+                $hostname = $port_matches[1];
+                $port = (int) $port_matches[2];
             } else {
                 $port = null;
             }
