@@ -59,9 +59,17 @@ namespace {
                 return \Dshafik\MySQL::$connections[$hash]['conn'];
             }
 
+            /* A custom port can be specified by appending the hostname with :{port} e.g. hostname:3307 */
+            if (preg_match('/^(.+):([\d]+)$/', $hostname, $port_matches) === 1 && $port_matches[1] !== "p") {
+                $hostname = $port_matches[1];
+                $port = (int) $port_matches[2];
+            } else {
+                $port = null;
+            }
+
             /* No flags, means we can use mysqli_connect() */
             if ($flags === 0) {
-                $conn = mysqli_connect($hostname, $username, $password);
+                $conn = mysqli_connect($hostname, $username, $password, '', $port);
                 if (!$conn instanceof mysqli) {
                     return false;
                 }
@@ -82,7 +90,7 @@ namespace {
                     $username,
                     $password,
                     '',
-                    null,
+                    $port,
                     '',
                     $flags
                 );
