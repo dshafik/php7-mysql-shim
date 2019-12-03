@@ -53,7 +53,7 @@ namespace {
             $hash = sha1($hostname . $username . $flags);
             /* persistent connections start with p: */
             /* don't use a cached link for those */
-            if (!$new && $hostname{1} !== ':' && isset(\Dshafik\MySQL::$connections[$hash])) {
+            if (!$new && $hostname[1] !== ':' && isset(\Dshafik\MySQL::$connections[$hash])) {
                 \Dshafik\MySQL::$last_connection = \Dshafik\MySQL::$connections[$hash]['conn'];
                 \Dshafik\MySQL::$connections[$hash]['refcount'] += 1;
                 return \Dshafik\MySQL::$connections[$hash]['conn'];
@@ -735,7 +735,7 @@ namespace Dshafik {
         {
             $escapedString = '';
             for ($i = 0, $max = strlen($unescapedString); $i < $max; $i++) {
-                $escapedString .= self::escapeChar($unescapedString{$i});
+                $escapedString .= self::escapeChar($unescapedString[$i]);
             }
 
             return $escapedString;
