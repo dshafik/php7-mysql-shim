@@ -37,3 +37,7 @@ Once the `lib/mysql.php` file is included, it will create `mysql_*` functions if
 - Some errors are now from `ext/mysqli`, and others are `E_USER_WARNING` instead of `E_WARNING`.
 - You must use the `mysqli.*` INI entries instead of `mysql.*` (e.g. `mysqli.default_user` instead of `mysql.default_user`)
 - If no host, username, password parameter is provided when using the `mysql_*` functions, the default values from the corresponding `mysqli.*` settings from `php.ini` file will be used (e.g. `mysqli.default_host`, `mysqli.default_user`, `mysqli.default_pw`)
+
+## Alternatives
+
+Instead of using this drop-in-replacement library you should consider refactoring your code from `mysql` to e.g. `mysqli`. This process can be automated with e.g. https://github.com/rectorphp/rector/blob/master/docs/AllRectorsOverview.md#mysqltomysqli
