@@ -40,4 +40,4 @@ Once the `lib/mysql.php` file is included, it will create `mysql_*` functions if
 
 ## Alternatives
 
-Instead of using this drop-in-replacement library you should consider refactoring your code from `mysql` to e.g. `mysqli`. This process can be automated with e.g. https://github.com/rectorphp/rector/blob/master/docs/AllRectorsOverview.md#mysqltomysqli
+Instead of using this drop-in-replacement library you should consider refactoring your code from `mysql` to e.g. `mysqli`. This process can be automated with e.g. https://stackoverflow.com/a/61597957
