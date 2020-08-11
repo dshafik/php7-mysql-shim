@@ -14,9 +14,9 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     /**
      * @var string MySQL Host
      */
-    protected static $host;
-
-    protected static $password = null;
+    public static $host;
+    public static $username = 'root';
+    public static $password = null;
 
     /**
      * @var string Docker container
@@ -46,7 +46,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_connect()
     {
-        $mysql = mysql_connect(static::$host, 'root', static::$password);
+        $mysql = mysql_connect(static::$host, static::$username, static::$password);
         $this->assertConnection($mysql);
     }
 
@@ -55,8 +55,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
      */
     public function test_mysql_connect_defaults()
     {
-        ini_set('mysqli.default_host', '127.0.0.1');
-        ini_set('mysqli.default_user', 'root');
+        ini_set('mysqli.default_host', static::$hostname);
+        ini_set('mysqli.default_user', static::$username);
         ini_set('mysqli.default_pw', (static::$password === null) ? '' : static::$password);
 
         $mysql = mysql_connect();
@@ -85,12 +85,12 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
      */
     public function test_mysql_connect_new()
     {
-        mysql_connect(static::$host, 'root', static::$password, true);
+        mysql_connect(static::$host, static::$username, static::$password, true);
     }
 
     public function test_mysql_connect_options()
     {
-        $mysql = mysql_connect(static::$host, 'root', static::$password, false, MYSQL_CLIENT_COMPRESS);
+        $mysql = mysql_connect(static::$host, static::$username, static::$password, false, MYSQL_CLIENT_COMPRESS);
         $this->assertConnection($mysql);
     }
 
@@ -107,8 +107,8 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         $this->skipForHHVM();
 
-        $conn = mysql_connect(static::$host, 'root', static::$password);
-        $conn2 = mysql_connect(static::$host, 'root', static::$password);
+        $conn = mysql_connect(static::$host, static::$username, static::$password);
+        $conn2 = mysql_connect(static::$host, static::$username, static::$password);
 
         $this->assertEquals($conn, $conn2);
 
@@ -125,7 +125,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_pconnect()
     {
-        $conn = mysql_pconnect(static::$host, 'root', static::$password);
+        $conn = mysql_pconnect(static::$host, static::$username, static::$password);
 
         $result = mysql_query("SELECT 'persistent'", $conn);
         $row = mysql_fetch_row($result);
@@ -152,7 +152,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_query_ddl()
     {
-        mysql_connect(static::$host, 'root', static::$password);
+        mysql_connect(static::$host, static::$username, static::$password);
         $result = mysql_query('CREATE DATABASE IF NOT EXISTS shim_test');
         $this->assertTrue($result, mysql_error());
     }
@@ -863,7 +863,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function test_mysql_close()
     {
-        mysql_connect(static::$host, 'root', static::$password);
+        mysql_connect(static::$host, static::$username, static::$password);
         $this->assertTrue(mysql_close());
     }
 
@@ -994,7 +994,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
         static::$host = '0.0.0.0';
         if (getenv('APPVEYOR') !== false) {
-            static::$host = '127.0.0.1';
+            static::$host = static::$hostname;
             static::$password = 'Password12!';
         }
     }
@@ -1019,7 +1019,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        mysql_connect(static::$host, 'root', static::$password);
+        mysql_connect(static::$host, static::$username, static::$password);
         foreach (self::$dbs as $db) {
             mysql_query("DROP DATABASE IF EXISTS `$db`");
         }
@@ -1225,7 +1225,7 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     {
         self::$dbs[$db] = $db;
 
-        $mysql = mysql_connect(static::$host, 'root', static::$password);
+        $mysql = mysql_connect(static::$host, static::$username, static::$password);
         $this->assertConnection($mysql);
 
         mysql_query('SET NAMES ' . $encoding);

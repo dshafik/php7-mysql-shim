@@ -9,3 +9,15 @@
  */
 
 require_once __DIR__ . '/../vendor/autoload.php';
+
+if (getenv('MYSQL_HOST') !== '') {
+    Dshafik\MySQL\Tests\MySqlShimTest::$host = getenv('MYSQL_HOST');   
+}
+
+if (getenv('MYSQL_USERNAME') !== '') {
+    Dshafik\MySQL\Tests\MySqlShimTest::$username = getenv('MYSQL_USERNAME');   
+}
+
+if (getenv('MYSQL_PASSWORD') !== '') {
+    Dshafik\MySQL\Tests\MySqlShimTest::$password = getenv('MYSQL_PASSWORD');
+}
