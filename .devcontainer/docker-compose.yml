@@ -30,15 +30,18 @@ services:
     links:
       - mariadb
 
+    environment:
+      MYSQL_HOST: mariadb
+
   mariadb:
-      image: mariadb:10.4
-      expose:
-          # Expose mariadb port to php service (Access as hostname "mariadb" from within php container)
-          - "3306"
-      # Uncomment to allow access to mariadb from external tools
-      # ports:
-      #     - "3306:3306"
-      restart: unless-stopped
-      environment:
-          MYSQL_ALLOW_EMPTY_PASSWORD: 1
-          MYSQL_DATABASE: shim_test
+    image: mariadb:10.4
+    expose:
+      # Expose mariadb port to php service (Access as hostname "mariadb" from within php container)
+      - "3306"
+    # Uncomment to allow access to mariadb from external tools
+    # ports:
+    #     - "3306:3306"
+    restart: unless-stopped
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_DATABASE: shim_test
