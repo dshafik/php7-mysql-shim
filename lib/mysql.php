@@ -412,14 +412,16 @@ namespace {
                 // @codeCoverageIgnoreEnd
             }
             $res = mysqli_fetch_field($result);
-            $res->not_null = ($res->flags & MYSQLI_NOT_NULL_FLAG) ? 1 : 0;
-            $res->primary_key = ($res->flags & MYSQLI_PRI_KEY_FLAG ) ? 1 : 0;
-            $res->unique_key = ($res->flags & MYSQLI_UNIQUE_KEY_FLAG ) ? 1 : 0;
-            $res->multiple_key = ($res->flags & MYSQLI_MULTIPLE_KEY_FLAG ) ? 1 : 0;
-            $res->numeric = ($res->flags & MYSQLI_NUM_FLAG ) ? 1 : 0;
-            $res->blob = ($res->flags & MYSQLI_BLOB_FLAG ) ? 1 : 0;
-            $res->unsigned = ($res->flags & MYSQLI_UNSIGNED_FLAG ) ? 1 : 0;
-            $res->zerofill = ($res->flags & MYSQLI_ZEROFILL_FLAG ) ? 1 : 0;
+            if ($res instanceof \stdClass) {
+                $res->not_null = ($res->flags & MYSQLI_NOT_NULL_FLAG) ? 1 : 0;
+                $res->primary_key = ($res->flags & MYSQLI_PRI_KEY_FLAG ) ? 1 : 0;
+                $res->unique_key = ($res->flags & MYSQLI_UNIQUE_KEY_FLAG ) ? 1 : 0;
+                $res->multiple_key = ($res->flags & MYSQLI_MULTIPLE_KEY_FLAG ) ? 1 : 0;
+                $res->numeric = ($res->flags & MYSQLI_NUM_FLAG ) ? 1 : 0;
+                $res->blob = ($res->flags & MYSQLI_BLOB_FLAG ) ? 1 : 0;
+                $res->unsigned = ($res->flags & MYSQLI_UNSIGNED_FLAG ) ? 1 : 0;
+                $res->zerofill = ($res->flags & MYSQLI_ZEROFILL_FLAG ) ? 1 : 0;
+            }
             return $res;
         }
 
