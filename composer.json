@@ -14,10 +14,9 @@
         "ext-mysqli": "*"
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "^2.3",
-        "friendsofphp/php-cs-fixer": "^1.9|^2.0",
-        "phpunit/phpunit": "^4.8|^5.2",
-        "phpstan/phpstan": "^0.6.2"
+        "squizlabs/php_codesniffer": "^3.5",
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "phpunit/phpunit": "^8.4"
     },
     "autoload": {
         "files": ["lib/mysql.php"]
