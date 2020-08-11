@@ -42,8 +42,6 @@ matrix:
       env: DEPS='lock'
     - php: 7.3
       env: DEPS='lock'
-    - php: 7.4
-      env: DEPS='lock'
 
 sudo: false
 before_install:
