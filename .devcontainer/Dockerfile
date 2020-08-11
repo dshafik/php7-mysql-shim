@@ -13,6 +13,9 @@ RUN docker-php-ext-install mysqli
 # Install Composer
 RUN ./install-composer.sh
 
+# Add git auto-complete to bash
+RUN echo "source /usr/share/bash-completion/completions/git" >> ~/.bashrc
+
 # Update args in docker-compose.yaml to set the UID/GID of the "vscode" user.
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
