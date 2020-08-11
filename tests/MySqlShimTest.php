@@ -9,7 +9,7 @@
  */
 namespace Dshafik\MySQL\Tests;
 
-class MySqlShimTest extends \PHPUnit_Framework_TestCase
+class MySqlShimTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var string MySQL Host
@@ -17,11 +17,6 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
     public static $host;
     public static $username = 'root';
     public static $password = null;
-
-    /**
-     * @var string Docker container
-     */
-    protected static $container;
 
     /**
      * @var array Location of binaries
@@ -40,6 +35,18 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
 
     public function __construct($name = null, array $data = array(), $dataName = '')
     {
+        if (getenv('MYSQL_HOST') !== '') {
+            static::$host = getenv('MYSQL_HOST');   
+        }
+        
+        if (getenv('MYSQL_USERNAME') !== '') {
+            static::$username = getenv('MYSQL_USERNAME');   
+        }
+        
+        if (getenv('MYSQL_PASSWORD') !== '') {
+            static::$password = getenv('MYSQL_PASSWORD');
+        }
+
         parent::__construct($name, $data, $dataName);
         $this->runtime = new \SebastianBergmann\Environment\Runtime();
     }
@@ -950,75 +957,13 @@ class MySqlShimTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('information_schema', mysql_db_name($dbs, 0));
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         @mysql_close();
     }
 
-    public static function setUpBeforeClass()
+    public static function tearDownAfterClass(): void
     {
-        error_reporting(E_ALL & ~E_DEPRECATED);
-        if (getenv('TRAVIS') === false && getenv('APPVEYOR') === false) {
-            fwrite(STDERR, "=> Finding binaries\n");
-            static::$bin['docker'] = $docker = exec('/usr/bin/env which docker');
-            if (empty($docker)) {
-                static::markTestSkipped('Docker is required to run these tests');
-            }
-
-            fwrite(STDERR, '=> Running Docker Container: ');
-            static::$container = exec($docker . ' run -e MYSQL_ALLOW_EMPTY_PASSWORD=1 -P -d  mysql/mysql-server:5.7');
-
-            if (empty(static::$container)) {
-                static::markTestSkipped('Unable to start docker container');
-            }
-
-            fwrite(STDERR, static::$container . "\n");
-
-            fwrite(STDERR, '=> Finding MySQL Host: ');
-            static::$host = exec($docker . ' port ' . self::$container . ' 3306');
-            fwrite(STDERR, static::$host . "\n");
-
-            fwrite(STDERR, '=> Waiting on mysqld to start:');
-            $out = '';
-            while (trim($out) !== 'mysqld') {
-                $out = exec(static::$bin['docker'] . ' exec ' . static::$container . ' ps ax | awk \'/mysqld/ {print $NF}\'');
-            }
-            fwrite(STDERR, " started\n");
-            sleep(3);
-
-            fwrite(STDERR, "=> Docker Container Running\n\n");
-
-            return;
-        }
-
-
-        static::$host = '0.0.0.0';
-        if (getenv('APPVEYOR') !== false) {
-            static::$host = static::$hostname;
-            static::$password = 'Password12!';
-        }
-    }
-
-    public static function tearDownAfterClass()
-    {
-        if (getenv('TRAVIS') === false && getenv('APPVEYOR') === false) {
-            fwrite(STDERR, "\n\nStopping Docker Container: ");
-            $output = exec(static::$bin['docker'] . ' stop ' . static::$container);
-            if (trim($output) !== static::$container) {
-                fwrite(STDERR, " Failed to stop container!\n");
-                return;
-            }
-
-            $output = exec(static::$bin['docker'] . ' rm ' . static::$container);
-            if (trim($output) !== static::$container) {
-                fwrite(STDERR, " Failed to remove container!\n");
-                return;
-            }
-            fwrite(STDERR, "Done\n");
-
-            return;
-        }
-
         mysql_connect(static::$host, static::$username, static::$password);
         foreach (self::$dbs as $db) {
             mysql_query("DROP DATABASE IF EXISTS `$db`");
