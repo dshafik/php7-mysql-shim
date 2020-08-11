@@ -1,22 +1,20 @@
-<?xml version="1.0"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" colors="true" verbose="true" bootstrap="tests/bootstrap.php" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
-  <coverage processUncoveredFiles="true">
-    <include>
-      <directory suffix=".php">./lib</directory>
-    </include>
-    <report>
-      <clover outputFile="build/coverage/coverage.clover"/>
-      <html outputDirectory="build/coverage/report"/>
-      <xml outputDirectory="build/coverage/xml"/>
-    </report>
-  </coverage>
-  <php>
-    <ini name="display_errors" value="on"/>
-  </php>
-  <logging/>
-  <testsuites>
-    <testsuite name="Unit Test">
-      <directory>./tests</directory>
-    </testsuite>
-  </testsuites>
+<phpunit colors="true" verbose="true" bootstrap="tests/bootstrap.php">
+    <php>
+        <ini name="display_errors" value="on"/>
+    </php>
+    <logging>
+        <log type="coverage-html" target="build/coverage/report"/>
+        <log type="coverage-xml" target="build/coverage/xml"/>
+        <log type="coverage-clover" target="build/coverage/coverage.clover"/>
+    </logging>
+    <testsuites>
+        <testsuite name="Unit Test">
+            <directory>./tests</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./lib</directory>
+        </whitelist>
+    </filter>
 </phpunit>
