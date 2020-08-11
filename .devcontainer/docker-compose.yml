@@ -27,6 +27,9 @@ services:
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
 
+    depends_on:
+      - mariadb
+
   mariadb:
       image: mariadb:10.4
       expose:
