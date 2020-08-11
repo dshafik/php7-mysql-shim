@@ -11,7 +11,8 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 RUN docker-php-ext-install mysqli
 
 # Install Composer
-RUN ./install-composer.sh
+ADD ./install-composer.sh /usr/local/share/install-composer.sh
+RUN /usr/local/share/install-composer.sh
 
 # Add git auto-complete to bash
 RUN echo "source /usr/share/bash-completion/completions/git" >> ~/.bashrc
