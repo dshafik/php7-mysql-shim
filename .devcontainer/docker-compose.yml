@@ -40,5 +40,5 @@ services:
       #     - "3306:3306"
       restart: unless-stopped
       environment:
-          MYSQL_ROOT_PASSWORD:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 1
           MYSQL_DATABASE: shim_test
