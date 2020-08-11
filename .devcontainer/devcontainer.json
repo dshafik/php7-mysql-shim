@@ -15,7 +15,11 @@
 		"felixfbecker.php-debug",
 		"felixfbecker.php-intellisense",
 		"mtxr.sqltools",
-		"mtxr.sqltools-driver-mysql"
+		"mtxr.sqltools-driver-mysql",
+		"bmewburn.vscode-intelephense-client",
+		"eamodio.gitlens",
+		"hbenl.vscode-test-explorer",
+		"recca0120.vscode-phpunit"
 	],
 
 	"workspaceFolder": "/workspace",
