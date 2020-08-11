@@ -8,14 +8,11 @@ env:
   # a sane dev environment.
   #
   # Everything below local dev PHP version _or_ platform req expected to fail
-  # HHVM expected to fail for some platform reqs
   - DEPS='lock'
   # composer update --prefer-lowest
   #
   # Ensures that the lowest possible versions will work
   #
-  # HHVM may fail here if older versions required HHVM specific changes
-  # to be compatible
   - DEPS='low'
   # composer update
   #
@@ -28,37 +25,25 @@ env:
   - DEPS='high'
 matrix:
   include:
-    - php: 5.3
-      dist: precise
-    - php: 5.4
-    - php: 5.5
-    - php: 5.6
-    - php: 7.0
     - php: 7.1
     - php: 7.2
+    - php: 7.3
+    - php: 7.4
     - php: nightly
-    - php: hhvm
-    - php: hhvm-nightly
   fast_finish: true
   allow_failures:
-    # HHVM may fail in all configurations
-    - php: hhvm
-    - php: hhvm-nightly
     # PHP nightly may fail in all configuration
     - php: nightly
     # PHP < dev version may fail with composer.lock
-    # Currently running PHP 7.1
-    - php: 5.3
+    # Currently running PHP 7.4
+    - php: 7.1
       env: DEPS='lock'
-    - php: 5.4
+    - php: 7.2
       env: DEPS='lock'
-    - php: 5.5
+    - php: 7.3
       env: DEPS='lock'
-    - php: 5.6
+    - php: 7.4
       env: DEPS='lock'
-    - php: 7.0
-      env: DEPS='lock'
-    # Everything except HHVM/nightly should pass with high/low
 
 sudo: false
 before_install:
@@ -69,4 +54,4 @@ install:
   - if [ "$DEPS" == "low" ];  then travis_retry composer update --prefer-lowest --no-interaction --prefer-source; fi;
   - if [ "$DEPS" == "high" ];  then travis_retry composer update --no-interaction --prefer-source; fi;
 script: php vendor/bin/phpunit
-after_script: if (( `php -r 'echo PHP_MAJOR_VERSION;'` == 7 )); then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover build/coverage/coverage.clover; fi;
+after_script: if (( `php -r 'echo substr(PHP_VERSION_ID, 0, -2);'` == 704 )); then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover build/coverage/coverage.clover; fi;
