@@ -734,16 +734,24 @@ namespace Dshafik {
         public static function checkValidResult($result, $function)
         {
             if (!($result instanceof \mysqli_result)) {
+                $type = strtolower(gettype($result));
+                $file = "";
+                $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+                if (isset($backtrace[1], $backtrace[1]['file'], $backtrace[1]['line'])) {
+                    $caller = $backtrace[1];
+                    $file = $caller['file'] . ':' . $caller['line'];
+                }
+
                 if ($function !== 'mysql_fetch_object') {
                     trigger_error(
-                        $function . '() expects parameter 1 to be resource, ' . strtolower(gettype($result)) . ' given',
+                        "$function() expects parameter 1 to be resource, $type given on $file",
                         E_USER_WARNING
                     );
                 }
 
                 if ($function === 'mysql_fetch_object') {
                     trigger_error(
-                        $function . '(): supplied argument is not a valid MySQL result resource',
+                        "$function(): supplied argument is not a valid MySQL result resource on $file",
                         E_USER_WARNING
                     );
                 }
