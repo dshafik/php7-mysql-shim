@@ -688,8 +688,10 @@ class MySqlShimTest extends \PHPUnit\Framework\TestCase
 
         if ($args !== array()) {
             array_unshift($args, null);
+            $this->expectWarningMessageMatches('@' . __FILE__ . ':' .  (__LINE__ + 1) . '@');
             call_user_func_array($function, $args);
         }
+        $this->expectWarningMessageMatches('@' . __FILE__ . ':' .  (__LINE__ + 1) . '@');
         call_user_func($function, null);
     }
 
