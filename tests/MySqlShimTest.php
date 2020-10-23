@@ -695,6 +695,13 @@ class MySqlShimTest extends \PHPUnit\Framework\TestCase
         call_user_func($function, null);
     }
 
+    public function test_mysql_check_valid_result_backtraces_here()
+    {
+        $this->expectWarning();
+        $this->expectWarningMessage(__FUNCTION__ . "() expects parameter 1 to be resource, boolean given on " . __FILE__ . ':' .  (__LINE__ + 1));
+        \Dshafik\MySQL::checkValidResult(false, __FUNCTION__);
+    }
+
     /**
      * @dataProvider mysql_fetch_DataProvider
      */
