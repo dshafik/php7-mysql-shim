@@ -740,7 +740,7 @@ namespace Dshafik {
                 $backtraceIndex = 0;
 
                 /**
-                 * Iterate through backtrace until find an backtrace with origin
+                 * Iterate through backtrace until finding a backtrace with an origin
                  * Some methods may not leave file and line metadata like call_user_func_array and __call
                  */
                 do {
