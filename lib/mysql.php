@@ -737,10 +737,20 @@ namespace Dshafik {
                 $type = strtolower(gettype($result));
                 $file = "";
                 $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-                if (isset($backtrace[1], $backtrace[1]['file'], $backtrace[1]['line'])) {
-                    $caller = $backtrace[1];
-                    $file = $caller['file'] . ':' . $caller['line'];
-                }
+                $backtraceIndex = 0;
+
+                /**
+                 * Iterate through backtrace until find an backtrace with origin
+                 * Some methods may not leave file and line metadata like call_user_func_array and __call
+                 */
+                do {
+                    $currentBacktrace = $backtrace[$backtraceIndex];
+                    $callerHasFileAndLine = isset($currentBacktrace['file'], $currentBacktrace['line']);
+
+                    if ($callerHasFileAndLine && $currentBacktrace['file'] != __FILE__) {
+                        $file = $currentBacktrace['file'] . ':' . $currentBacktrace['line'];
+                    }
+                } while ($backtraceIndex++ < count($backtrace) && $file == "");
 
                 if ($function !== 'mysql_fetch_object') {
                     trigger_error(
