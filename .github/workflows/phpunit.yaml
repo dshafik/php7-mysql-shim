@@ -3,14 +3,15 @@ on: [push, pull_request]
 env:
   fail-fast: true
 jobs:
-  lib:
-    name: php7-mysql-shim (PHP ${{ matrix.php-versions }})
+  phpunit:
+    name: Unit Tests (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
     services:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: password
           MYSQL_DATABASE: testing
         ports:
           - 3306/tcp
@@ -48,3 +49,5 @@ jobs:
         run: composer run test -- --coverage-text
         env:
           MYSQL_HOST: localhost:${{ job.services.mysql.ports['3306'] }}
+          MYSQL_USERNAME: root
+          MYSQL_PASSWORD: password
