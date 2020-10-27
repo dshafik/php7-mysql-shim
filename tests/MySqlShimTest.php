@@ -758,12 +758,24 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
     /**
      * @dataProvider mysql_fetch_object_dataProvider
      */
-    public function test_mysql_fetch_object($className, $params, $paramsResult)
+    public function test_mysql_fetch_object($className, $params, $expectedParams)
     {
         $this->getConnection('shim_test');
         $result = mysql_query("SELECT one, two FROM testing LIMIT 2");
 
-        while ($row = mysql_fetch_object($result, $className, $params)) {
+        $fetch = function($result) use ($className, $params) {
+            if ($className === null) {
+                return mysql_fetch_object($result);
+            }
+
+            if ($params === array()) {
+                return mysql_fetch_object($result, $className);
+            }
+
+            return mysql_fetch_object($result, $className, $params);
+        };
+
+        while ($row = $fetch($result)) {
             if ($className === null) {
                 $this->assertInstanceOf('stdClass', $row);
             } else {
@@ -773,9 +785,9 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
             $this->assertNotEmpty($row->one);
             $this->assertNotEmpty($row->two);
             
-            if ($paramsResult !== null) {
-                $this->assertEquals($paramsResult['foo'], $row->foo);
-                $this->assertEquals($paramsResult['bar'], $row->bar);
+            if ($expectedParams !== null) {
+                $this->assertEquals($expectedParams['foo'], $row->foo);
+                $this->assertEquals($expectedParams['bar'], $row->bar);
             }
         }
     }
@@ -1195,12 +1207,12 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
             array(
                 'class' => null,
                 'params' => array(),
-                'paramsMatch' => null,
+                'expectedParams' => null,
             ),
             array(
                 'class' => '\Dshafik\MySQL\Tests\TestResult',
                 'params' => array(),
-                'paramsMatch' => array(
+                'expectedParams' => array(
                     'foo' => TestResult::DEFAULT_PARAM_VALUE,
                     'bar' => TestResult::DEFAULT_PARAM_VALUE,
                 )
@@ -1208,7 +1220,7 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
             array(
                 'class' => '\Dshafik\MySQL\Tests\TestResult',
                 'params' => array(TestResult::SET_VALUE, TestResult::SET_VALUE + 1),
-                'paramsMatch' => array(
+                'expectedParams' => array(
                     'foo' => TestResult::SET_VALUE,
                     'bar' => TestResult::SET_VALUE + 1
                 )
