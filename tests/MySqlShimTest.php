@@ -80,7 +80,7 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $this->expectWarning();
         $this->expectWarningMessageMatches('/^mysql(i?)_connect\(\): \(HY000\/2002\): No such file or directory$/');
-        mysql_connect(':/var/run/mysqld/mysqld.sock');
+        mysql_connect(':/var/run/mysqld/mysqld.sock', null, null);
     }
 
     public function test_mysql_connect_fail_warning()
@@ -1195,7 +1195,7 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
             array(
                 'class' => null,
                 'params' => array(),
-                'paramsMatch' => array(),
+                'paramsMatch' => null,
             ),
             array(
                 'class' => '\Dshafik\MySQL\Tests\TestResult',
