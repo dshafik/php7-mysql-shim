@@ -419,6 +419,10 @@ namespace {
                 // @codeCoverageIgnoreEnd
             }
             $res = mysqli_fetch_field($result);
+            if ($res === false) {
+                trigger_error('mysql_fetch_field(): Bad field offset', E_USER_WARNING);
+            }
+
             if ($res instanceof \stdClass) {
                 $res->not_null = ($res->flags & MYSQLI_NOT_NULL_FLAG) ? 1 : 0;
                 $res->primary_key = ($res->flags & MYSQLI_PRI_KEY_FLAG ) ? 1 : 0;

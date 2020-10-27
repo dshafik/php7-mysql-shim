@@ -1059,8 +1059,8 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     public function test_mysql_fetch_field_fail_invalid()
     {
-        // $this->expectWarning();
-        // $this->expectWarningMessage("mysql_fetch_field() expects parameter 1 to be resource, boolean given");
+        $this->expectWarning();
+        $this->expectWarningMessage("mysql_fetch_field(): Bad field offset");
 
         $this->getConnection();
 
@@ -1071,12 +1071,11 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
                 ('six', '6', '6', '6', '6', '6', '6', '6', 'six', 'six', '6')"
         );
 
-        $result = mysql_query("SELECT * FROM testing WHERE one = 'six' LIMIT 1");
+        $result = mysql_query("SELECT one FROM testing WHERE one = 'six' LIMIT 1");
         $this->assertNotFalse($result);
         
-        for ($i = 0; $i <= 12; $i++) {
-            $field = mysql_fetch_field($result, $i);
-        }
+        
+        $field = mysql_fetch_field($result, 2);
         $this->assertFalse($field);
     }
 
