@@ -1,5 +1,5 @@
 name: Testing php7-mysql-shim
-on: [push, pull_request]
+on: [pull_request]
 env:
   fail-fast: true
 jobs:
