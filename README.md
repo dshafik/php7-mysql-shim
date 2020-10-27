@@ -1,6 +1,5 @@
-[![Build Status](https://travis-ci.org/dshafik/php7-mysql-shim.svg?branch=master)](https://travis-ci.org/dshafik/php7-mysql-shim)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/?branch=master)
+[![Build Status](https://github.com/dshafik/php7-mysql-shim/workflows/phpunit/badge.svg)](https://github.com/dshafik/php7-mysql-shim/actions)
+![Code Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/dshafik/ee79527e0098afea147bffc33bf710d3/raw/coverage.json)
 # PHP 7 Shim for ext/mysql
 
 This library attempts to create a drop-in replacement for ext/mysql on PHP 7 using mysqli.
