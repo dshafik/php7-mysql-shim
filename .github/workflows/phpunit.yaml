@@ -50,7 +50,7 @@ jobs:
           gistID: ee79527e0098afea147bffc33bf710d3
           filename: coverage.json
           label: Code Coverage
-          message: ${{ env.COVERAGE }}
+          message: ${{ env.COVERAGE }}%
           color: green
         if: matrix.php-versions == '7.4'
         continue-on-error: true # if is fork
