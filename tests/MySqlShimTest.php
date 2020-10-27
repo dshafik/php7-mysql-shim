@@ -1097,12 +1097,12 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
         }
     }
 
-    public function tearDown(): void
+    public function tear_down()
     {
         @mysql_close();
     }
 
-    public static function tearDownAfterClass(): void
+    public static function tear_down_after_class()
     {
         mysql_connect(static::$host, static::$username, static::$password);
         foreach (self::$dbs as $db) {
