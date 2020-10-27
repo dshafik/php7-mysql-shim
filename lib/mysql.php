@@ -411,16 +411,39 @@ namespace {
             return mysqli_fetch_lengths($result);
         }
 
-        function mysql_fetch_field($result) /* : object|*/
+        function mysql_fetch_field($result, $field_offset = null) /* : object|*/
         {
+            static $fields = array();
+
             if (!\Dshafik\MySQL::checkValidResult($result, __FUNCTION__)) {
                 // @codeCoverageIgnoreStart
                 return false;
                 // @codeCoverageIgnoreEnd
             }
-            $res = mysqli_fetch_field($result);
-            if ($res === false) {
+
+            $result_hash = spl_object_hash($result);
+            if ($field_offset === null) {
+                $fields[$result_hash][] = true;
+                $res = mysqli_fetch_field($result);
+            } elseif ($field_offset > mysqli_num_fields($result)) {
                 trigger_error('mysql_fetch_field(): Bad field offset', E_USER_WARNING);
+                return false;
+            } else {
+                $i = 0;
+                if (isset($fields[$result_hash])) {
+                    $i = count($fields[$result_hash]);
+                }
+
+                while ($i <= $field_offset) {
+                    $res = mysqli_fetch_field($result);
+
+                    if ($res === false) {
+                        return false;
+                    }
+
+                    $fields[$result_hash][$i] = true;
+                    $i++;
+                }  
             }
 
             if ($res instanceof \stdClass) {

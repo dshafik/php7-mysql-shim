@@ -519,7 +519,7 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals('testing', mysql_field_table($result, 10));
         $this->assertEquals('ten', mysql_field_name($result, 10));
         $this->assertEquals('string', mysql_field_type($result, 10));
-        $this->assertEquals(35, mysql_field_len($result, 10));
+        $this->assertEquals(52, mysql_field_len($result, 10));
         $this->assertEquals('set', mysql_field_flags($result, 10));
 
         $this->assertEquals('testing', mysql_field_table($result, 11));
@@ -597,7 +597,7 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals('testing', mysql_field_table($result, 10));
         $this->assertEquals('ten', mysql_field_name($result, 10));
         $this->assertEquals('string', mysql_field_type($result, 10));
-        $this->assertEquals(35*3, mysql_field_len($result, 10));
+        $this->assertEquals(156, mysql_field_len($result, 10));
         $this->assertEquals('set', mysql_field_flags($result, 10));
 
         $this->assertEquals('testing', mysql_field_table($result, 11));
@@ -960,7 +960,7 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals('information_schema', mysql_db_name($dbs, 0));
     }
 
-    public function test_mysql_fetch_field()
+    public function test_mysql_fetch_field_with_offset()
     {
         $this->getConnection();
 
@@ -1048,6 +1048,149 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
         }
     }
 
+    public function test_mysql_fetch_field_with_nonconsecutive_offset()
+    {
+        $this->getConnection();
+
+        $result = mysql_query(
+            "INSERT INTO
+                testing (one, two, three, four, five, six, seven, eight, nine, ten, eleven)
+             VALUES
+                ('eight', '8', '8', '8', '8', '8', '8', '8', 'eight', 'eight', '8')"
+        );
+        $this->assertTrue($result);
+
+        $result = mysql_unbuffered_query("SELECT * FROM testing WHERE one = 'eight' LIMIT 1");
+        $this->assertNotFalse($result);
+
+        $row = mysql_fetch_assoc($result);
+
+        $map = array(
+            1 => array(
+                'name' => 'one', 'max_length' => 5, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            3 => array(
+                'name' => 'three', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            6 => array(
+                'name' => 'six', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            10 => array(
+                'name' => 'ten', 'max_length' => 5, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            11 => array(
+                'name' => 'eleven', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 1,
+                'type' => 'blob', 'unsigned' => 0, 'zerofill' => 0
+            ),
+        );
+
+        foreach ($map as $index => $values) {
+            $field = mysql_fetch_field($result, $index);
+            $this->assertInstanceOf(\stdClass::class, $field);
+
+            foreach ($values as $key => $value) {
+                $this->assertEquals($field->{$key}, $value, "Field '$index:$key' doesn't match.  Expected: $value, Actual: {$field->{$key}}");
+            }
+        }
+    }
+
+    public function test_mysql_fetch_field_without_offset()
+    {
+        $this->getConnection();
+
+        $result = mysql_query(
+            "INSERT INTO
+                testing (one, two, three, four, five, six, seven, eight, nine, ten, eleven)
+             VALUES
+                ('seven', '7', '7', '7', '7', '7', '7', '7', 'seven', 'seven', '7')"
+        );
+        $this->assertTrue($result, mysql_error());
+
+        $result = mysql_query("SELECT * FROM testing WHERE one = 'seven' LIMIT 1");
+        $this->assertNotFalse($result);
+
+        $map = array(
+            0 => array(
+                'name' => 'id', 'max_length' => 1, 'not_null' => 1, 'primary_key' => 1,
+                'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 1, 'blob' => 0,
+                'type' => 'int', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            1 => array(
+                'name' => 'one', 'max_length' => 5, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            2 => array(
+                'name' => 'two', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 1, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            3 => array(
+                'name' => 'three', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            4 => array(
+                'name' => 'four', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            5 => array(
+                'name' => 'five', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            6 => array(
+                'name' => 'six', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            7 => array(
+                'name' => 'seven', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            8 => array(
+                'name' => 'eight', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            9 => array(
+                'name' => 'nine', 'max_length' => 5, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            10 => array(
+                'name' => 'ten', 'max_length' => 5, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
+            ),
+            11 => array(
+                'name' => 'eleven', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
+                'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 1,
+                'type' => 'blob', 'unsigned' => 0, 'zerofill' => 0
+            ),
+        );
+
+        foreach ($map as $index => $values) {
+            $field = mysql_fetch_field($result);
+            $this->assertInstanceOf(\stdClass::class, $field);
+
+            foreach ($values as $key => $value) {
+                $this->assertEquals($field->{$key}, $value, "Field '$index:$key' doesn't match.  Expected: $value, Actual: {$field->{$key}}");
+            }
+        }
+    }
+
     public function test_mysql_fetch_field_fail_false()
     {
         $this->expectWarning();
@@ -1073,7 +1216,6 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $result = mysql_query("SELECT one FROM testing WHERE one = 'six' LIMIT 1");
         $this->assertNotFalse($result);
-        
         
         $field = mysql_fetch_field($result, 2);
         $this->assertFalse($field);
@@ -1349,8 +1491,8 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
                 six varchar(255),
                 seven varchar(255),
                 eight varchar(255),
-                nine ENUM('one', 'two', '\'three', 'three', 'four', 'five', 'six'),
-                ten SET('one', 'two', '\'\'three', 'three', 'four', 'five', 'six'),
+                nine ENUM('one', 'two', '\'three', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'),
+                ten SET('one', 'two', '\'\'three', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'),
                 eleven MEDIUMTEXT,
                 INDEX one_idx (one),
                 UNIQUE INDEX two_unq (two),
