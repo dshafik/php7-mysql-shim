@@ -44,7 +44,6 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
         }
 
         if (getenv('MYSQL_PASSWORD') !== false) {
-            var_dump(getenv('MYSQL_PASSWORD'));
             static::$password = getenv('MYSQL_PASSWORD');
         }
 
