@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/dshafik/php7-mysql-shim.svg?branch=master)](https://travis-ci.org/dshafik/php7-mysql-shim)
+[![Build Status](https://github.com/dshafik/php7-mysql-shim/workflows/phpunit/badge.svg)](https://github.com/dshafik/php7-mysql-shim/actions)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/dshafik/php7-mysql-shim/?branch=master)
 # PHP 7 Shim for ext/mysql
