@@ -40,3 +40,5 @@ jobs:
           MYSQL_HOST: 127.0.0.1:${{ job.services.mysql.ports['3306'] }}
           MYSQL_USERNAME: root
           MYSQL_PASSWORD: password
+      - name: Upload Code Coverage
+        run: if (( `php -r 'echo substr(PHP_VERSION_ID, 0, -2);'` == 704 )); then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover build/coverage/coverage.clover; fi;
