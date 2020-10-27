@@ -40,5 +40,24 @@ jobs:
           MYSQL_HOST: 127.0.0.1:${{ job.services.mysql.ports['3306'] }}
           MYSQL_USERNAME: root
           MYSQL_PASSWORD: password
+      - name: Get Code Coverage
+        run: php tests/coverage.php
+        if: matrix.php == '7.4'
       - name: Upload Code Coverage
-        run: if (( `php -r 'echo substr(PHP_VERSION_ID, 0, -2);'` == 704 )); then wget https://scrutinizer-ci.com/ocular.phar && php ocular.phar code-coverage:upload --format=php-clover build/coverage/coverage.clover; fi;
+        uses: schneegans/dynamic-badges-action@v1.0.0
+        with:
+          auth: ${{ secrets.GIST_TOKEN }}
+          gistID: ee79527e0098afea147bffc33bf710d3
+          filename: coverage.json
+          label: Code Coverage
+          message: ${{ env.COVERAGE }}
+          color: green
+        if: matrix.php == '7.4'
+        continue-on-error: true # if is fork
+      - name: Scrutinizer Code Coverage
+        run: |
+           wget https://scrutinizer-ci.com/ocular.phar
+           php ocular.phar code-coverage:upload --format=php-clover build/coverage/coverage.clover
+        if: matrix.php == '7.4'
+        continue-on-error: true # if is fork
+
