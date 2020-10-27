@@ -28,11 +28,6 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
      */
     protected static $dbs = array();
 
-    /**
-     * @var \SebastianBergmann\Environment\Runtime
-     */
-    protected $runtime;
-
     public function __construct($name = null, array $data = array(), $dataName = '')
     {
         if (getenv('MYSQL_HOST') !== false) {
@@ -48,7 +43,6 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
         }
 
         parent::__construct($name, $data, $dataName);
-        $this->runtime = new \SebastianBergmann\Environment\Runtime();
     }
 
     public function test_mysql_connect()
@@ -74,13 +68,6 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $mysql = mysql_connect(static::$host . ':3306', static::$username, static::$password);
         $this->assertConnection($mysql); 
-    }
-
-    public function test_mysql_connect_socket()
-    {
-        $this->expectWarning();
-        $this->expectWarningMessageMatches('/^mysql(i?)_connect\(\): \(HY000\/2002\): No such file or directory$/');
-        mysql_connect(':/var/run/mysqld/mysqld.sock', null, null);
     }
 
     public function test_mysql_connect_fail_warning()

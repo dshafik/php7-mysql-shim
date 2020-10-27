@@ -37,7 +37,6 @@ jobs:
       - name: Run Tests
         run: composer run test -- --coverage-text
         env:
-          CI: true
           MYSQL_HOST: 127.0.0.1:${{ job.services.mysql.ports['3306'] }}
           MYSQL_USERNAME: root
           MYSQL_PASSWORD: password
