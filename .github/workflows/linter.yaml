@@ -1,4 +1,4 @@
-name: Testing php7-mysql-shim
+name: Linting php7-mysql-shim
 on: [push, pull_request]
 env:
   fail-fast: true
