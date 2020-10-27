@@ -54,10 +54,4 @@ jobs:
           color: green
         if: matrix.php-versions == '7.4'
         continue-on-error: true # if is fork
-      - name: Scrutinizer Code Coverage
-        run: |
-           wget https://scrutinizer-ci.com/ocular.phar
-           php ocular.phar code-coverage:upload --format=php-clover build/coverage/coverage.clover
-        if: matrix.php-versions == '7.4'
-        continue-on-error: true # if is fork
 
