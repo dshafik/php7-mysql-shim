@@ -41,6 +41,6 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
       - name: Install Composer dependencies
         run: |
-           composer update --prefer-lowest --no-interaction --prefer-source
+           composer update --no-interaction --prefer-source
       - name: Run Tests
-        run: php bin/phpunit --coverage-text
+        run: composer run test -- --coverage-text
