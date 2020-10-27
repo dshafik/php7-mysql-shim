@@ -9,7 +9,7 @@
  */
 namespace Dshafik\MySQL\Tests;
 
-class MySqlShimTest extends \PHPUnit\Framework\TestCase
+class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
     /**
      * @var string MySQL Host
@@ -69,6 +69,19 @@ class MySqlShimTest extends \PHPUnit\Framework\TestCase
 
         $mysql = mysql_connect();
         $this->assertConnection($mysql);
+    }
+
+    public function test_mysql_connect_port()
+    {
+        $mysql = mysql_connect(static::$host . ':3306', static::$username, static::$password);
+        $this->assertConnection($mysql); 
+    }
+
+    public function test_mysql_connect_socket()
+    {
+        $this->expectWarning();
+        $this->expectWarningMessageMatches('/^mysql(i?)_connect\(\): \(HY000\/2002\): No such file or directory$/');
+        mysql_connect(':/var/run/mysqld/mysqld.sock');
     }
 
     public function test_mysql_connect_fail_warning()
@@ -743,6 +756,31 @@ class MySqlShimTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($function($result));
     }
 
+    /**
+     * @dataProvider mysql_fetch_object_dataProvider
+     */
+    public function test_mysql_fetch_object($className, $params, $paramsResult)
+    {
+        $this->getConnection('shim_test');
+        $result = mysql_query("SELECT one, two FROM testing LIMIT 2");
+
+        while ($row = mysql_fetch_object($result, $className, $params)) {
+            if ($className === null) {
+                $this->assertInstanceOf('stdClass', $row);
+            } else {
+                $this->assertInstanceOf($className, $row);
+            }
+
+            $this->assertNotEmpty($row->one);
+            $this->assertNotEmpty($row->two);
+            
+            if ($paramsResult !== null) {
+                $this->assertEquals($paramsResult['foo'], $row->foo);
+                $this->assertEquals($paramsResult['bar'], $row->bar);
+            }
+        }
+    }
+
     public function test_mysql_num_rows()
     {
         $this->getConnection('shim_test');
@@ -863,7 +901,7 @@ class MySqlShimTest extends \PHPUnit\Framework\TestCase
         $result = mysql_query('SELECT VERSION(');
         $this->assertFalse($result);
 
-        $this->assertRegExp(
+        $this->assertMatchesRegularExpression(
             '@You have an error in your SQL syntax; check the manual that corresponds to your (.*?) ' .
             'server version for the right syntax to use near \'\' at line 1@',
             mysql_error()
@@ -940,68 +978,68 @@ class MySqlShimTest extends \PHPUnit\Framework\TestCase
         $result = mysql_query("SELECT * FROM testing WHERE one = 'six' LIMIT 1");
         $this->assertNotFalse($result);
 
-        $map = [
-            0 => [
+        $map = array(
+            0 => array(
                 'name' => 'id', 'max_length' => 1, 'not_null' => 1, 'primary_key' => 1,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 1, 'blob' => 0,
                 'type' => MYSQLI_TYPE_LONG, 'unsigned' => 0, 'zerofill' => 0
-            ],
-            1 => [
+            ),
+            1 => array(
                 'name' => 'one', 'max_length' => 3, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
                 'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
-            ],
-            2 => [
+            ),
+            2 => array(
                 'name' => 'two', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 1, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
                 'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
-            ],
-            3 => [
+            ),
+            3 => array(
                 'name' => 'three', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
                 'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
-            ],
-            4 => [
+            ),
+            4 => array(
                 'name' => 'four', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
                 'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
-            ],
-            5 => [
+            ),
+            5 => array(
                 'name' => 'five', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
                 'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
-            ],
-            6 => [
+            ),
+            6 => array(
                 'name' => 'six', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
                 'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
-            ],
-            7 => [
+            ),
+            7 => array(
                 'name' => 'seven', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
                 'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
-            ],
-            8 => [
+            ),
+            8 => array(
                 'name' => 'eight', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
                 'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
-            ],
-            9 => [
+            ),
+            9 => array(
                 'name' => 'nine', 'max_length' => 3, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
                 'type' => MYSQLI_TYPE_STRING, 'unsigned' => 0, 'zerofill' => 0
-            ],
-            10 => [
+            ),
+            10 => array(
                 'name' => 'ten', 'max_length' => 3, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
                 'type' => MYSQLI_TYPE_STRING, 'unsigned' => 0, 'zerofill' => 0
-            ],
-            11 => [
+            ),
+            11 => array(
                 'name' => 'eleven', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 1,
                 'type' => MYSQLI_TYPE_BLOB, 'unsigned' => 0, 'zerofill' => 0
-            ],
-        ];
+            ),
+        );
 
         foreach ($map as $index => $values) {
             $field = mysql_fetch_field($result, $index);
@@ -1043,6 +1081,21 @@ class MySqlShimTest extends \PHPUnit\Framework\TestCase
             $field = mysql_fetch_field($result, $i);
         }
         $this->assertFalse($field);
+    }
+
+    public function test_mysql_list_processes()
+    {
+        $this->getConnection();
+
+        $result = mysql_list_processes();
+
+        while ($row = mysql_fetch_assoc($result)) {
+            $this->assertArrayHasKey('Id', $row);
+            $this->assertArrayHasKey('Host', $row);
+            $this->assertArrayHasKey('db', $row);
+            $this->assertArrayHasKey('Command', $row);
+            $this->assertArrayHasKey('Time', $row);
+        }
     }
 
     public function tearDown(): void
@@ -1134,6 +1187,33 @@ class MySqlShimTest extends \PHPUnit\Framework\TestCase
             array(
                 'function' => 'mysql_fetch_object',
             ),
+        );
+    }
+
+    public function mysql_fetch_object_dataProvider()
+    {
+        return array(
+            array(
+                'class' => null,
+                'params' => array(),
+                'paramsMatch' => array(),
+            ),
+            array(
+                'class' => '\Dshafik\MySQL\Tests\TestResult',
+                'params' => array(),
+                'paramsMatch' => array(
+                    'foo' => TestResult::DEFAULT_PARAM_VALUE,
+                    'bar' => TestResult::DEFAULT_PARAM_VALUE,
+                )
+            ),
+            array(
+                'class' => '\Dshafik\MySQL\Tests\TestResult',
+                'params' => array(TestResult::SET_VALUE, TestResult::SET_VALUE + 1),
+                'paramsMatch' => array(
+                    'foo' => TestResult::SET_VALUE,
+                    'bar' => TestResult::SET_VALUE + 1
+                )
+            )
         );
     }
 
@@ -1328,5 +1408,20 @@ class MySqlShimTest extends \PHPUnit\Framework\TestCase
             $mysql instanceof \mysqli,
             'Not a valid MySQL connection'
         );
+    }
+}
+
+class TestResult {
+    const DEFAULT_VALUE = 1;
+    const DEFAULT_PARAM_VALUE = 2;
+    const SET_VALUE = 3;
+
+    public $foo = self::DEFAULT_VALUE;
+    public $bar = self::DEFAULT_VALUE;
+
+    public function __construct($foo = self::DEFAULT_PARAM_VALUE, $bar = self::DEFAULT_PARAM_VALUE)
+    {
+        $this->foo = $foo;
+        $this->bar = $bar;
     }
 }
