@@ -497,7 +497,7 @@ namespace {
                         $res->type = 'blob';
                         break;
                     case MYSQLI_TYPE_VAR_STRING: 
-                        $res->type = 'varchar';
+                        $res->type = 'string';
                         break;
                     case MYSQLI_TYPE_STRING: 
                         $res->type = 'char';
