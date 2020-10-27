@@ -1,4 +1,4 @@
-name: Testing php7-mysql-shim
+name: Unit Tests
 on: [pull_request]
 env:
   fail-fast: true

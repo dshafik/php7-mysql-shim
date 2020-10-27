@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/dshafik/php7-mysql-shim/workflows/phpunit/badge.svg)](https://github.com/dshafik/php7-mysql-shim/actions)
+[![Build Status](https://github.com/dshafik/php7-mysql-shim/workflows/Unit%20Tests/badge.svg)](https://github.com/dshafik/php7-mysql-shim/actions)
 ![Code Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/dshafik/ee79527e0098afea147bffc33bf710d3/raw/coverage.json)
 # PHP 7 Shim for ext/mysql
 
