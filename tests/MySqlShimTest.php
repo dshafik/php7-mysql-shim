@@ -1024,12 +1024,12 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
             9 => array(
                 'name' => 'nine', 'max_length' => 3, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
-                'type' => 'char', 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
             ),
             10 => array(
                 'name' => 'ten', 'max_length' => 3, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
-                'type' => 'char', 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'string', 'unsigned' => 0, 'zerofill' => 0
             ),
             11 => array(
                 'name' => 'eleven', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,

@@ -500,7 +500,7 @@ namespace {
                         $res->type = 'string';
                         break;
                     case MYSQLI_TYPE_STRING: 
-                        $res->type = 'char';
+                        $res->type = 'string';
                         break;
                     case MYSQLI_TYPE_GEOMETRY: 
                         $res->type = 'geometry';
