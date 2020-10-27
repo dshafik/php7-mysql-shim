@@ -428,7 +428,89 @@ namespace {
                 $res->blob = ($res->flags & MYSQLI_BLOB_FLAG ) ? 1 : 0;
                 $res->unsigned = ($res->flags & MYSQLI_UNSIGNED_FLAG ) ? 1 : 0;
                 $res->zerofill = ($res->flags & MYSQLI_ZEROFILL_FLAG ) ? 1 : 0;
+
+                switch ($res->type) {
+                    case MYSQLI_TYPE_CHAR: 
+                        $res->type = 'tinyint';
+                        break;
+                    case MYSQLI_TYPE_SHORT: 
+                        $res->type = 'smallint';
+                        break;
+                    case MYSQLI_TYPE_DECIMAL: 
+                        $res->type = 'decimal';
+                        break;
+                    case MYSQLI_TYPE_LONG: 
+                        $res->type = 'int';
+                        break;
+                    case MYSQLI_TYPE_FLOAT: 
+                        $res->type = 'float';
+                        break;
+                    case MYSQLI_TYPE_DOUBLE: 
+                        $res->type = 'double';
+                        break;
+                    case MYSQLI_TYPE_NULL: 
+                        $res->type = 'null';
+                        break;
+                    case MYSQLI_TYPE_TIMESTAMP: 
+                        $res->type = 'timestamp';
+                        break;
+                    case MYSQLI_TYPE_LONGLONG: 
+                        $res->type = 'bigint';
+                        break;
+                    case MYSQLI_TYPE_INT24: 
+                        $res->type = 'mediumint';
+                        break;
+                    case MYSQLI_TYPE_DATE: 
+                        $res->type = 'date';
+                        break;
+                    case MYSQLI_TYPE_TIME: 
+                        $res->type = 'time';
+                        break;
+                    case MYSQLI_TYPE_DATETIME: 
+                        $res->type = 'datetime';
+                        break;
+                    case MYSQLI_TYPE_YEAR: 
+                        $res->type = 'year';
+                        break;
+                    case MYSQLI_TYPE_NEWDATE: 
+                        $res->type = 'date';
+                        break;
+                    case MYSQLI_TYPE_BIT: 
+                        $res->type = 'bit';
+                        break;
+                    case MYSQLI_TYPE_ENUM: 
+                        $res->type = 'enum';
+                        break;
+                    case MYSQLI_TYPE_SET: 
+                        $res->type = 'set';
+                        break;
+                    case MYSQLI_TYPE_TINY_BLOB: 
+                        $res->type = 'tinyblob';
+                        break;
+                    case MYSQLI_TYPE_MEDIUM_BLOB: 
+                        $res->type = 'mediumblob';
+                        break;
+                    case MYSQLI_TYPE_LONG_BLOB: 
+                        $res->type = 'longblob';
+                        break;
+                    case MYSQLI_TYPE_BLOB: 
+                        $res->type = 'blob';
+                        break;
+                    case MYSQLI_TYPE_VAR_STRING: 
+                        $res->type = 'varchar';
+                        break;
+                    case MYSQLI_TYPE_STRING: 
+                        $res->type = 'char';
+                        break;
+                    case MYSQLI_TYPE_GEOMETRY: 
+                        $res->type = 'geometry';
+                        break;
+                    case MYSQLI_TYPE_NEWDECIMAL: 
+                        $res->type = 'numeric';
+                        break;
+                }
             }
+
             return $res;
         }
 

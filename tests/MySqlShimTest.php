@@ -979,62 +979,62 @@ class MySqlShimTest extends \Yoast\PHPUnitPolyfills\TestCases\TestCase
             0 => array(
                 'name' => 'id', 'max_length' => 1, 'not_null' => 1, 'primary_key' => 1,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 1, 'blob' => 0,
-                'type' => MYSQLI_TYPE_LONG, 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'int', 'unsigned' => 0, 'zerofill' => 0
             ),
             1 => array(
                 'name' => 'one', 'max_length' => 3, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
-                'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'varchar', 'unsigned' => 0, 'zerofill' => 0
             ),
             2 => array(
                 'name' => 'two', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 1, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
-                'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'varchar', 'unsigned' => 0, 'zerofill' => 0
             ),
             3 => array(
                 'name' => 'three', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
-                'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'varchar', 'unsigned' => 0, 'zerofill' => 0
             ),
             4 => array(
                 'name' => 'four', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
-                'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'varchar', 'unsigned' => 0, 'zerofill' => 0
             ),
             5 => array(
                 'name' => 'five', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
-                'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'varchar', 'unsigned' => 0, 'zerofill' => 0
             ),
             6 => array(
                 'name' => 'six', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
-                'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'varchar', 'unsigned' => 0, 'zerofill' => 0
             ),
             7 => array(
                 'name' => 'seven', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 1, 'numeric' => 0, 'blob' => 0,
-                'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'varchar', 'unsigned' => 0, 'zerofill' => 0
             ),
             8 => array(
                 'name' => 'eight', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
-                'type' => MYSQLI_TYPE_VAR_STRING, 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'varchar', 'unsigned' => 0, 'zerofill' => 0
             ),
             9 => array(
                 'name' => 'nine', 'max_length' => 3, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
-                'type' => MYSQLI_TYPE_STRING, 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'char', 'unsigned' => 0, 'zerofill' => 0
             ),
             10 => array(
                 'name' => 'ten', 'max_length' => 3, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 0,
-                'type' => MYSQLI_TYPE_STRING, 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'char', 'unsigned' => 0, 'zerofill' => 0
             ),
             11 => array(
                 'name' => 'eleven', 'max_length' => 1, 'not_null' => 0, 'primary_key' => 0,
                 'unique_key' => 0, 'multiple_key' => 0, 'numeric' => 0, 'blob' => 1,
-                'type' => MYSQLI_TYPE_BLOB, 'unsigned' => 0, 'zerofill' => 0
+                'type' => 'blob', 'unsigned' => 0, 'zerofill' => 0
             ),
         );
 
