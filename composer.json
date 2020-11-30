@@ -16,7 +16,7 @@
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.5",
         "friendsofphp/php-cs-fixer": "^2.16",
-        "yoast/phpunit-polyfills": "^0.1.0"
+        "yoast/phpunit-polyfills": "^0.2.0"
     },
     "autoload": {
         "files": ["lib/mysql.php"]
