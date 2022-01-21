@@ -384,7 +384,7 @@ namespace {
                 // @codeCoverageIgnoreEnd
             }
 
-            if ($class === null) {
+            if ($class === null || $class === 'stdClass') {
                 $object = mysqli_fetch_object($result);
             } else {
                 $object = mysqli_fetch_object($result, $class, $params);
