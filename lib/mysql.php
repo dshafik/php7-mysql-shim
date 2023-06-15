@@ -87,7 +87,14 @@ namespace {
                     return false;
                 }
                 MySQL::$last_connection = $conn;
-                $conn->hash = $hash; // @phpstan-ignore-line
+                if (class_exists('WeakMap')) {
+                  if (is_null(MySQL::$conn_hash_weakmap)) {
+                    MySQL::$conn_hash_weakmap = new WeakMap();
+                  }
+                  MySQL::$conn_hash_weakmap[$conn] = $hash;
+                } else {
+                  $conn->hash = $hash; // @phpstan-ignore-line
+                }
                 MySQL::$connections[$hash] = array('refcount' => 1, 'conn' => $conn);
 
                 return $conn;
@@ -115,7 +122,14 @@ namespace {
                 }
                 // @codeCoverageIgnoreEnd
 
-                $conn->hash = $hash; // @phpstan-ignore-line
+                if (class_exists('WeakMap')) {
+                  if (is_null(MySQL::$conn_hash_weakmap)) {
+                    MySQL::$conn_hash_weakmap = new WeakMap();
+                  }
+                  MySQL::$conn_hash_weakmap[$conn] = $hash;
+                } else {
+                  $conn->hash = $hash; // @phpstan-ignore-line
+                }
                 MySQL::$connections[$hash] = array('refcount' => 1, 'conn' => $conn);
 
                 return $conn;
@@ -150,14 +164,23 @@ namespace {
                 // @codeCoverageIgnoreEnd
             }
 
-            if (isset(MySQL::$connections[$link->hash])) {
-                MySQL::$connections[$link->hash]['refcount'] -= 1;
+            if (class_exists('WeakMap')) {
+              if (is_null(MySQL::$conn_hash_weakmap)) {
+                MySQL::$conn_hash_weakmap = new WeakMap();
+              }
+              $link_hash = MySQL::$conn_hash_weakmap[$link];
+            } else {
+                $link_hash = $link->hash;
+            }
+
+            if (isset(MySQL::$connections[$link_hash])) {
+                MySQL::$connections[$link_hash]['refcount'] -= 1;
             }
 
             $return = true;
-            if (MySQL::$connections[$link->hash]['refcount'] === 0) {
+            if (MySQL::$connections[$link_hash]['refcount'] === 0) {
                 $return = mysqli_close($link);
-                unset(MySQL::$connections[$link->hash]);
+                unset(MySQL::$connections[$link_hash]);
             }
 
             if ($isDefault) {
@@ -789,6 +812,10 @@ namespace Dshafik {
     {
         public static $last_connection;
         public static $connections = array();
+        /**
+         * @var null|\WeakMap
+         */
+        public static $conn_hash_weakmap = null;
 
         public static function getConnection($link = null, $func = null)
         {
