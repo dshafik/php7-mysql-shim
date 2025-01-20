@@ -1,5 +1,10 @@
 [![Build Status](https://github.com/dshafik/php7-mysql-shim/workflows/Unit%20Tests/badge.svg)](https://github.com/dshafik/php7-mysql-shim/actions)
 ![Code Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/dshafik/ee79527e0098afea147bffc33bf710d3/raw/coverage.json)
+
+<p align="center">
+  <img width="500" height="500" src="https://github.com/user-attachments/assets/28526ddb-1748-46ba-a984-81bcc238274d">
+</p>
+
 # PHP 7 Shim for ext/mysql
 
 This library attempts to create a drop-in replacement for ext/mysql on PHP 7 using mysqli.
